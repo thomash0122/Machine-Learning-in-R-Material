@@ -1,0 +1,712 @@
+---
+title: "PCA in R"
+author: "Kachun Huang"
+date: "2025-04-21"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# PCA in R
+
+## Import Library
+
+```{r}
+library(factoextra)
+library(stats)
+library(cluster)
+library(factoextra)
+library(ggplot2)
+library(caret)
+library(ggbiplot)
+```
+
+## Step 1: Scale
+
+```{r eval=FALSE, include=TRUE}
+data_scaled <- scale(data)
+```
+
+PCA is affected by the scale of the variables, so standardization is usually necessary.
+
+## Step 2: apply prcomp()
+
+```{r eval=FALSE, include=TRUE}
+pca_data <- prcomp(
+  data_scaled, 
+  center=TRUE, 
+  scale.=TRUE # if you didn't scale the data
+) 
+```
+
+If scaled
+
+```{r eval=FALSE, include=TRUE}
+pca_data <- prcomp(
+  data_scaled, 
+  center=FALSE, 
+  scale.=FALSE # if you didn't scale the data
+) 
+```
+
+### Summary
+
+```{r eval=FALSE, include=TRUE}
+summary(pca_data)
+```
+
+#### Output includes:
+
+| Statistic | Description |
+|----|----|
+| **Standard deviation** | The square roots of the eigenvalues of the covariance/correlation matrix. It shows how much variance each principal component (PC) captures in absolute terms. |
+| **Proportion of Variance** | The percentage of the total variance in the dataset explained by each PC. |
+| **Cumulative Proportion** | The cumulative percentage of total variance explained as you add more PCs. Useful for deciding how many components to keep. |
+
+#### What you can access in the `pca_data` object:
+
+| Component | Description |
+|----|----|
+| `$sdev` | Standard deviations of the principal components (used to compute variance). |
+| `$rotation` | **The matrix of eigenvectors (i.e., loadings).** Columns = PCs, rows = original features. Shows how each variable contributes to each PC. |
+| `$center` | The mean of each variable used for centering. |
+| `$scale` | The standard deviation used for scaling (if `scale. = TRUE`). |
+| `$x` | The **principal component scores**, i.e., the projected data in the new PC space. Each row = observation, each column = PC. |
+
+## Step 3: Scree Plot
+
+We need to use Scree Plot to see and help to decide how many PCs to keep.
+
+```{r eval=FALSE, include=TRUE}
+fviz_eig(pca_data)
+```
+
+**How to Interpret It:**
+
+1. **Look for the “elbow”**
+
+-   This is the point where the slope of the curve **levels off**.
+
+-   It indicates that **adding more PCs beyond this point contributes little extra variance**.
+
+-   **Keep PCs before the elbow**, discard those after.
+
+2. **Variance Explained**
+
+-   Each point shows **how much variance a PC explains**.
+
+-   The **higher the point**, the more useful that PC is for summarizing the data.
+
+Rule of Thumb:
+
+-   If the **first few PCs** explain **70–90% of the variance**, you may choose to keep them.
+
+## Biplot
+
+```{r eval=FALSE, include=TRUE}
+ggbiplot(pca_data)
+```
+
+What does a biplot show?
+
+1. **Points (Observations)**
+
+-   Each point represents a **data sample** (an observation in your dataset).
+
+-   Their positions are based on their scores on the selected principal components (usually PC1 and PC2).
+
+2. **Arrows (Variables)**
+
+-   Each arrow represents a **variable (feature)** from your original data.
+
+-   The **direction** and **length** of the arrow show how strongly that variable contributes to the PCs.
+
+| Element | Interpretation |
+|----|----|
+| **Length of arrows** | Variables with longer arrows are **more strongly correlated** with the PCs shown. |
+| **Angle between arrows** | Small angle -\> high positive correlation. 90° -\> no correlation. 180° -\> negative correlation. |
+| **Direction of arrows** | Shows which way the variable increases. Observations in that direction have higher values for that variable. |
+| **Position of points** | Samples that are close together are **similar** in terms of the principal components. |
+
+# Example
+
+Our goal is to predict the iris Species based on the other 4 attributes given. Subsequently we\
+wish to compare our data-driven clustering to that of the true species classification. For each of\
+the following six clustering methods
+
+-   K-mean;
+
+-   Hierarchical: Ward, Single-linkage, Complete-\
+    linkage, Average-linkage, Centroid
+
+## K-means
+
+### Data-Preprocessing
+
+```{r}
+# omit NAs
+data <- na.omit(iris)
+
+# scale data
+scaled_data <- scale(data[,-5]) #don't scale the response
+```
+
+### Optimal number of clusters
+
+```{r}
+# K-means
+kmeans_fit <- kmeans(
+  scaled_data,
+  centers = 3,
+  nstart = 25
+)
+
+# Scree-plot
+fviz_nbclust(
+  scaled_data,
+  kmeans,
+  method="wss"
+)
+```
+
+3 clusters seems good
+
+### 2D Cluster Plot
+
+```{r}
+clusplot(
+  scaled_data,
+  kmeans_fit$cluster,
+  main = "K-means Clustering",
+  color = TRUE,
+  shade = TRUE,
+  labels = 2,
+  lines = 0
+)
+```
+
+### Confusion Matrix
+
+```{r}
+table(
+  kmeans_fit$cluster,
+  data$Species
+)
+```
+
+```{r}
+#mapping
+clusters <- factor(
+  kmeans_fit$cluster, 
+  levels = c(3,1,2), 
+  labels = c("setosa","versicolor","virginica")
+)
+
+confusionMatrix(
+  clusters,
+  data$Species
+)
+```
+
+so the confusion matrix is
+
+50 0 0
+
+0 39 14
+
+0 11 36
+
+So the accuracy is
+
+```{r}
+(39+50+36)/150
+```
+
+## Hierarchical Clustering
+
+### Distance Matrix
+
+```{r}
+d <- dist(
+  data,
+  method = "euclidean"
+)
+```
+
+### Ward.D
+
+```{r}
+# fit
+H.fit <- hclust(
+  d,
+  method = "ward.D"
+)
+# plot
+plot(H.fit)
+# Add rectangles for k clusters
+rect.hclust(
+  H.fit, 
+  k=3, 
+  border = "red"
+)
+```
+
+#### 2D Cluster Plot
+
+```{r}
+
+groups <- cutree(
+  H.fit,
+  k=3
+)
+
+clusplot(
+  data,
+  groups,
+  main = "2D representation of the Cluster solution",
+  color = TRUE,
+  shade = TRUE,
+  labels = 2,
+  lines = 0
+)
+```
+
+#### Confusion Matrix
+
+```{r}
+table(
+  data$Species,
+  groups
+  
+)
+```
+
+```{r}
+clusters <- factor(
+  groups, 
+  levels =1:3, 
+  labels = c("setosa","versicolor","virginica")
+)
+
+confusionMatrix(
+  data$Species,
+  clusters
+)
+```
+
+so the confusion matrix is
+
+50 0 0
+
+0 50 0
+
+0 14 36
+
+So the accuracy is
+
+```{r}
+(50+50+36)/150
+```
+
+### Single linkage
+
+```{r}
+# fit
+H.fit <- hclust(
+  d,
+  method = "single"
+)
+# plot
+plot(H.fit)
+
+# Add rectangles for k clusters
+rect.hclust(
+  H.fit, 
+  k=3, 
+  border = "red"
+)
+```
+
+#### 2D Cluster Plot
+
+```{r}
+
+groups <- cutree(
+  H.fit,
+  k=3
+)
+
+clusplot(
+  data,
+  groups,
+  main = "2D representation of the Cluster solution",
+  color = TRUE,
+  shade = TRUE,
+  labels = 2,
+  lines = 0
+)
+```
+
+#### Confusion Matrix
+
+```{r}
+table(
+  data$Species,
+  groups
+)
+```
+
+```{r}
+clusters <- factor(
+  groups, 
+  levels =1:3, 
+  labels = c("setosa","versicolor","virginica")
+)
+
+confusionMatrix(
+  data$Species,
+  clusters
+)
+```
+
+so the confusion matrix is
+
+50 0 0
+
+0 50 0
+
+0 48 2
+
+So the accuracy is
+
+```{r}
+(50+50+2)/150
+```
+
+### Complete
+
+```{r}
+# fit
+H.fit <- hclust(
+  d,
+  method = "complete"
+)
+# plot
+plot(H.fit)
+
+# Add rectangles for k clusters
+rect.hclust(
+  H.fit, 
+  k=3, 
+  border = "red"
+)
+```
+
+#### 2D Cluster Plot
+
+```{r}
+
+groups <- cutree(
+  H.fit,
+  k=3
+)
+
+clusplot(
+  data,
+  groups,
+  main = "2D representation of the Cluster solution",
+  color = TRUE,
+  shade = TRUE,
+  labels = 2,
+  lines = 0
+)
+```
+
+#### Confusion Matrix
+
+```{r}
+table(
+  data$Species,
+  groups
+)
+```
+
+```{r}
+clusters <- factor(
+  groups, 
+  levels =1:3, 
+  labels = c("setosa","versicolor","virginica")
+)
+
+confusionMatrix(
+  data$Species,
+  clusters
+)
+```
+
+so the confusion matrix is
+
+50 0 0
+
+0 23 27
+
+0 49 1
+
+So the accuracy is
+
+```{r}
+(50+23+1)/150
+```
+
+### Average
+
+```{r}
+# fit
+H.fit <- hclust(
+  d,
+  method = "average"
+)
+# plot
+plot(H.fit)
+
+# Add rectangles for k clusters
+rect.hclust(
+  H.fit, 
+  k=3, 
+  border = "red"
+)
+```
+
+#### 2D Cluster Plot
+
+```{r}
+
+groups <- cutree(
+  H.fit,
+  k=3
+)
+
+clusplot(
+  data,
+  groups,
+  main = "2D representation of the Cluster solution",
+  color = TRUE,
+  shade = TRUE,
+  labels = 2,
+  lines = 0
+)
+```
+
+#### Confusion Matrix
+
+```{r}
+table(
+  data$Species,
+  groups
+)
+```
+
+```{r}
+clusters <- factor(
+  groups, 
+  levels =1:3, 
+  labels = c("setosa","versicolor","virginica")
+)
+
+confusionMatrix(
+  data$Species,
+  clusters
+)
+```
+
+so the confusion matrix is
+
+50 0 0
+
+0 50 0
+
+0 14 36
+
+So the accuracy is
+
+```{r}
+(50+50+36)/150
+```
+
+### Centroid
+
+```{r}
+# fit
+H.fit <- hclust(
+  d,
+  method = "centroid"
+)
+# plot
+plot(H.fit)
+
+# Add rectangles for k clusters
+rect.hclust(
+  H.fit, 
+  k=3, 
+  border = "red"
+)
+```
+
+#### 2D Cluster Plot
+
+```{r}
+
+groups <- cutree(
+  H.fit,
+  k=3
+)
+
+clusplot(
+  data,
+  groups,
+  main = "2D representation of the Cluster solution",
+  color = TRUE,
+  shade = TRUE,
+  labels = 2,
+  lines = 0
+)
+```
+
+#### Confusion Matrix
+
+```{r}
+table(
+  data$Species,
+  groups
+)
+```
+
+```{r}
+clusters <- factor(
+  groups, 
+  levels =1:3, 
+  labels = c("setosa","versicolor","virginica")
+)
+
+confusionMatrix(
+  data$Species,
+  clusters
+)
+```
+
+so the confusion matrix is
+
+50 0 0
+
+0 50 0
+
+0 48 2
+
+So the accuracy is
+
+```{r}
+(50+50+2)/150
+```
+
+### Compare K-means and Ward's
+
+```{r}
+H.fit <- hclust(
+  d, 
+  method="ward.D"
+)
+
+groups <- cutree(
+  H.fit,
+  k=3
+)
+
+ward_labels <- factor(
+  groups, 
+  levels = 1:3, 
+  labels = c("setosa", "versicolor", "virginica")
+)
+
+kmeans_labels <- factor(
+  kmeans_fit$cluster, 
+  levels = c(3,1,2), 
+  labels = c("setosa", "versicolor", "virginica")
+)
+
+table(
+  kmeans = kmeans_labels, 
+  ward = ward_labels
+)
+```
+
+### Which is Better?
+
+Ward's method is a little bit better than K-means, especially to find virginica level.
+
+**Performance:**
+
+-   Ward \> K-means \> Complete \> Average \> Single = Centroid
+
+I would recommend the cluster analysis as a good way to deal with this IRIS dataset.\
+K-means and complete methods are usually great, but here Ward method is the best one from the confusion matrix.
+
+## PCA
+
+### Compute PC's
+
+```{r}
+iris.pca <- prcomp(
+  scaled_data,
+  center = TRUE,
+  scale.=TRUE
+)
+```
+
+```{r}
+summary(iris.pca)
+```
+
+**What percentage of the variations each PC would explain?**
+
+```{r}
+variance_explained <- iris.pca$sdev^2 / sum(iris.pca$sdev^2)
+variance_explained * 100
+```
+
+PC1 -\> 73%
+
+PC2 -\> 23%
+
+PC3 -\> 3.5%
+
+PC4 -\> 0.5%
+
+### Biplot
+
+```{r}
+ggbiplot(iris.pca)
+```
+
+```{r}
+ggbiplot(
+  iris.pca,
+  ellipse=TRUE,
+  groups=iris$Species
+)
+```
+
+### Print PC1 as Linear Combination of features
+
+```{r}
+iris.pca$rotation[,1]
+```
+
+### Result
+
+I recommend the PCA method as an efficient way here. PCA is a very effective tool in this context.
+
+The first two PCs account for over 95% of the variance in the original data, allowing us to visualize and classifythe species clearly.
+
+PCA helps simplify complex data while preserving important structure and is especially useful when dealing with high-dimensional or noisy data.

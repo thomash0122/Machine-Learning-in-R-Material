@@ -1,0 +1,461 @@
+---
+title: "CART in R"
+author: "Kachun Huang"
+date: "2025-03-25"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# CART in R
+
+## Import Dependencies
+
+```{r}
+library(rpart)
+library(rpart.plot)
+library(rattle)
+library(caTools)
+library(tidyverse)
+library(caret)
+```
+
+## Model Fitting
+
+syntax:
+
+```{r eval=FALSE, include=TRUE}
+model <- rpart(
+  Y~.,
+  data, 
+  method,
+  control = rpart.control(cp=...)
+)
+```
+
+parameters:
+
+-   Method: one of **`"anova"`**, **`"poisson"`**, **`"class"`** or **`"exp"`**. If **`method`** is missing then the routine tries to make an intelligent guess. If **`y`** is a survival object, then **`method = "exp"`** is assumed, if **`y`** has 2 columns then **`method = "poisson"`** is assumed, if **`y`** is a factor then **`method = "class"`** is assumed, otherwise **`method = "anova"`** is assumed. It is wisest to specify the method directly, especially as more criteria may added to the function in future.
+
+-   control: a list of options that control details of the **`rpart`** algorithm.
+
+    -   in `rpart.control`, `cp` is the complexity parameter.
+
+        -   `cp` controls the trade-off between tree size and accuracy
+
+        -   when `cp` = 0, creates a fully grown tree. more splits, more details but overfitting
+
+### Fit Controlled Model
+
+To avoid overfitting, we can set constraints like `minsplit` and `minbucket`.
+
+-   `minsplit`: Minimum number of observations required to split a node.
+
+-   `minbucket`: Minimum number of observations in a leaf node.
+
+```{r eval=FALSE, include=TRUE}
+model <- rpart(
+  Y~.,
+  data, 
+  method,
+  control = rpart.control(cp=..., minsplit=..., minbucket =...)
+)
+```
+
+### Fit a Tree Using Entropy
+
+By default, `rpart` uses the Gini index for splits. To use entropy instead, specify the `split` parameter.
+
+```{r eval=FALSE, include=TRUE}
+model <- rpart(
+  Y~.,
+  data,
+  method,
+  params = list(split="information") #information gain (entropy)
+)
+```
+
+## Model Plot
+
+This is from `rattle` packages
+
+```{r eval=FALSE, include=TRUE}
+# Visualize the tree using fancyRpartPlot from rattle
+par(xpd = NA)  # Allow plotting outside the margins
+fancyRpartPlot(model, 
+               sub = "", 
+               caption = "", 
+               main = "Title_name", 
+               split.col = "blue", # Color of split text
+               box.palette = "RdYlBu", # Color scheme
+               tweak = 1.2 # Adjust node size
+              )
+```
+
+or we can use `rpart.plot` package
+
+```{r eval=FALSE, include=TRUE}
+rpart.plot(
+  model, 
+  type = 4, # Shows split labels at nodes
+  extra = 104, #Displays probabilities and class labels at terminal nodes.
+  tweak = 1.2 # Adjusts font size
+  )
+```
+
+## Prune the tree
+
+Pruning reduces overfitting by selecting an optimal complexity parameter (`cp`) using cross-validation.
+
+```{r eval=FALSE, include=TRUE}
+set.seed(123)
+model_pruned <- train(
+  Y~.,
+  data,
+  method = "rpart",
+  trControl = trainControl("cv", number = 10), # 10 fold CV
+  tuneLength = 100 # Tries 100 different complexity parameters (cp) to find the best one.
+)
+```
+
+To see the Accuracy vs. cp plot
+
+```{r eval=FALSE, include=TRUE}
+plot(model_pruned)
+```
+
+To access the best `cp`
+
+```{r eval=FALSE, include=TRUE}
+model_pruned$bestTune
+```
+
+## Prediction
+
+Make predictions on the test set and evaluate performance using a confusion matrix.
+
+```{r eval=FALSE, include=TRUE}
+# Predict on test data
+pred <- predict(model, test.data, type = "class")
+
+# confusion matrix (caret package)
+confusionMatrix(factor(pred), factor(test.data$Response), positive = "1")
+```
+
+# Example
+
+## Import Data
+
+```{r}
+data <- read.csv("/Users/thomashuang/Downloads/Titanic.csv")
+head(data)
+```
+
+```{r}
+str(data)
+```
+
+## Data Pre-processing
+
+### Remove Missing Values
+
+```{r}
+data <- na.omit(data)
+```
+
+```{r}
+str(data)
+```
+
+### Factorized categorical variable
+
+```{r}
+data$Pclass <- factor(data$Pclass)
+data$Survived <- factor(data$Survived)
+```
+
+### Select only subset of the features
+
+```{r}
+data <- subset(data, select=-c(Name, Ticket, Cabin))
+str(data)
+```
+
+## Data Splitting
+
+```{r}
+set.seed(123)
+training.sample <- data$Survived %>% createDataPartition(p=0.8, list = FALSE)
+train.data <- data[training.sample,]
+test.data <- data[-training.sample,]
+```
+
+## Fit Full Tree Model
+
+```{r}
+full <- rpart(
+  Survived~., 
+  data=train.data, 
+  control = rpart.control(cp=0) # fully grown tree
+  )
+```
+
+### Plot
+
+```{r}
+fancyRpartPlot(
+  full, 
+  sub = "", 
+  caption = "", 
+  main = "Decision Tree for Survived",
+  split.col = "blue", # Color of split text
+  box.palette = "RdYlBu", # Color scheme
+  tweak = 1.2 # Adjust node size
+  ) 
+```
+
+or use `rpart.plot` pkg
+
+```{r}
+rpart.plot(
+  full, 
+  type = 4, # type = 4: Shows split labels at nodes
+  extra = 104, # extra = 104: Displays probabilities and class labels at terminal nodes
+  tweak = 1.2, # tweak = 1.2: Adjusts font size
+  main = "Decision Tree for Survived"
+  )
+```
+
+### Prediction
+
+```{r}
+pred_full <- predict(
+  full,
+  test.data,
+  type="class"
+)
+```
+
+### Confusion Matrix
+
+```{r}
+confusionMatrix(
+  factor(pred_full),
+  factor(test.data$Survived),
+  positive = "1"
+)
+```
+
+## Fit Full Tree with Control
+
+```{r}
+control_model <- rpart(
+  Survived~.,
+  data = train.data,
+  control = rpart.control(cp=0, 
+                          minisplit=10,
+                          minbucket=5)
+)
+```
+
+### Plot
+
+```{r}
+fancyRpartPlot(
+  control_model, 
+  sub = "", 
+  caption = "", 
+  main = "Decision Tree for Survived",
+  split.col = "blue", # Color of split text
+  box.palette = "RdYlBu", # Color scheme
+  tweak = 1.2 # Adjust node size
+)
+```
+
+### Prediction
+
+```{r}
+pred_control <- predict(
+  control_model,
+  test.data,
+  type="class"
+)
+```
+
+### Confusion Matrix
+
+```{r}
+confusionMatrix(
+  factor(pred_control),
+  factor(test.data$Survived),
+  positive = "1"
+)
+```
+
+## Fit Tree with (Entropy)
+
+```{r}
+model_entropy <- rpart(
+  Survived ~ ., 
+  data = train.data,
+  method = "class", # if resposne is factor
+  parms = list(split = "information") # Use entropy
+) 
+```
+
+### Plot
+
+```{r}
+rpart.plot(
+  model_entropy, 
+  type = 4, 
+  extra = 104, 
+  tweak = 1.2
+)
+```
+
+### Prediction
+
+```{r}
+pred_entropy <- predict(
+  model_entropy,
+  test.data,
+  type="class"
+)
+```
+
+### Confusion Matrix
+
+```{r}
+confusionMatrix(
+  factor(pred_entropy),
+  factor(test.data$Survived),
+  positive = "1"
+)
+```
+
+## Pruning full tree with 10-fold CV
+
+```{r}
+set.seed(123)
+
+model2 <- train(
+  Survived ~., 
+  data = train.data, 
+  method = "rpart",
+  trControl = trainControl("cv", number = 10), #trControl = trainControl("cv", number = 10): Implements 10-fold cross-validation
+  tuneLength = 100 # tuneLength = 100: Tries 100 different complexity parameters (cp) to find the best one.
+)
+```
+
+### Plot
+
+```{r}
+plot(model2)
+```
+
+The tree starts from its fully grown version, and then cross-validation selects the optimal cp value,\
+- 1. The tree is initially grown fully with different cp values.\
+- 2. 10-fold cross-validation evaluates tree performance for each cp.\
+- 3. The best cp (minimizing validation error) is selected.\
+- 4. The final tree is pruned using the best cp.
+
+cp stands for Complexity Parameter:\
+- The best cp is the one that minimizes the cross-validation error
+
+### Access the best tune
+
+```{r}
+model2$bestTune
+```
+
+### Plot the best model
+
+```{r}
+fancyRpartPlot(model2$finalModel)
+```
+
+### Prediction
+
+```{r}
+pred_2 <- predict(
+  model2,
+  test.data
+)
+```
+
+### Confusion Matrix
+
+```{r}
+confusionMatrix(
+  factor(pred_2),
+  factor(test.data$Survived),
+  positive = "1"
+)
+```
+
+## Manually Prune the Tree with rpart
+
+```{r}
+full_tree <- rpart(Survived ~ ., data = train.data, cp = 0) # Fully grown tree
+printcp(full_tree) # Check complexity parameters
+```
+
+### Access the best cp
+
+```{r}
+best_cp <- full_tree$cptable[which.min(full_tree$cptable[, "xerror"]), "CP"]
+best_cp
+```
+
+### Plot the best tree
+
+```{r}
+pruned_tree <- prune(
+  full_tree,
+  cp=best_cp
+)
+
+rpart.plot(pruned_tree)
+```
+
+### Prediction
+
+```{r}
+pred_pruned <- predict(
+  pruned_tree,
+  test.data,
+  type = "class"
+)
+```
+
+### Confusion Matrix
+
+```{r}
+confusionMatrix(
+  factor(pred_pruned),
+  factor(test.data$Survived),
+  positive = "1"
+)
+```
+
+## Result
+
+```{r}
+#full tree
+table(pred_full, test.data$Survived)
+```
+
+```{r}
+#pruned tree
+table(pred_pruned, test.data$Survived)
+```
+
+The pruned model increases TN (79 vs. 71), meaning it is better at correctly identifying dead passengers.
+
+\
+The pruned model has a lower TP (36 vs. 47), meaning it predicts fewer survived passengers correctly than the full model.
+
+There is a trade-off. Chose the model based on your research goal.\

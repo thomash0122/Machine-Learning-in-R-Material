@@ -1,0 +1,290 @@
+---
+title: "Neural Network Regression"
+author: "Kachun Huang"
+date: "2025-03-06"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Neural Network Regression
+
+## library Import
+
+```{r}
+library(neuralnet)
+library(tidyverse)
+library(caret)
+library(MASS)
+library(knitr)
+```
+
+## Data Import
+
+```{r}
+data("Boston")
+house = Boston
+head(house)
+```
+
+```{r}
+str(house)
+```
+
+The Boston housing price data we will use for our homework is taken from the Kaggle\
+competition site ([https://www.kaggle.com/vikrishnan/boston-house-prices).](https://www.kaggle.com/vikrishnan/boston-house-prices).) We will treat this dataset as our entire data.
+
+\
+Each record in the database describes a Boston suburb or town. The data was drawn from the Boston Standard Metropolitan Statistical Area (SMSA) in 1970.
+
+Our data has 506 observations and 14 variables:
+
+\
+Attribute Information (in order):
+
+-   CRIM: per capita crime rate by town
+
+-   ZN: proportion of residential land zoned for lots over 25,000 sq.ft.
+
+-   INDUS: proportion of non-retail business acres per town
+
+-   CHAS: Charles River dummy variable (= 1 if tract bounds river; 0 otherwise)
+
+-   NOX: nitric oxides concentration (parts per 10 million)
+
+-   RM: average number of rooms per dwelling
+
+-   AGE: proportion of owner-occupied units built before 1940
+
+-   DIS: weighted distances to five Boston employment centers
+
+-   RAD: index of accessibility to radial highways
+
+-   TAX: full-value property-tax rate per 10,000 dollars
+
+-   PTRATIO: pupil-teacher ratio by town
+
+-   Black: The result of the equation B=1000(Bk - 0.63)\^2 where Bk is the\
+    proportion of blacks by town
+
+-   LSTAT: %lower status of the population
+
+-   MEDV: Median value of owner-occupied homes in 1000 dollars
+
+## Data Pre-processing
+
+### Exclude RAD Columns
+
+```{r}
+house <- subset(house, select = -c(rad))
+head(house)
+```
+
+```{r}
+str(house)
+```
+
+### Compute Mean and sd (for descaling)
+
+```{r}
+mean <- mean(house$medv)
+sd <- sd(house$medv)
+```
+
+## Normalize Data
+
+```{r}
+house <- data.frame(scale(house))
+head(house)
+```
+
+## Data Splitting
+
+```{r}
+set.seed(123)
+training.sample <- house$medv %>% createDataPartition(p=0.75, list=FALSE)
+train.data <- house[training.sample,]
+test.data <- house[-training.sample,]
+```
+
+In your own research, you can follow this:
+
+1)  Always scale continuous features before fitting a neural network.
+
+2)  Categorical variables (one-hot encoded) do not need scaling.
+
+## Neural Network with no hidden layer
+
+```{r}
+nn_no_model <- neuralnet(
+  medv ~.,
+  train.data,
+  hidden = 0,
+  err.fct = "sse",
+  linear.output = TRUE
+)
+```
+
+### Plot
+
+```{r}
+plot(nn_no_model, rep="best")
+```
+
+### Predict on Test Data
+
+```{r}
+#predict on test data
+pred_nn_no <- predict(nn_no_model, test.data)
+```
+
+### Descale
+
+```{r}
+# compute y(unscaled)
+y <- test.data$medv * sd + mean
+#compute y^hat (unscaled)
+yhat <- pred_nn_no*sd+mean
+```
+
+### Compute Test MSE
+
+```{r}
+(MSE.nn.1 = RMSE(y,yhat)^2)
+```
+
+or
+
+```{r}
+sum((y-yhat)^2)/length(y)
+```
+
+## Neural Network with 1 hidden layer
+
+```{r}
+nn_one_model <- neuralnet(
+  medv ~.,
+  train.data,
+  hidden = 3,
+  err.fct = "sse",
+  linear.output = TRUE
+)
+```
+
+### Plot
+
+```{r}
+plot(nn_one_model, rep="best")
+```
+
+### Predict on Test Data
+
+```{r}
+#predict on test data
+pred_nn_one <- predict(nn_one_model, test.data)
+```
+
+### Descale
+
+```{r}
+# compute y(unscaled)
+y <- test.data$medv*sd+mean
+
+#compute y^hat (unscaled)
+yhat <- pred_nn_one*sd+mean
+```
+
+### Compute Test MSE
+
+```{r}
+(MSE.nn.2 = RMSE(y,yhat)^2)
+```
+
+or
+
+```{r}
+sum((y-yhat)^2)/length(y)
+```
+
+## Multiple Linear Regression
+
+```{r}
+mlr <- lm(medv~., data=train.data)
+```
+
+### Summary
+
+```{r}
+summary(mlr)
+```
+
+### Predict on Test Data
+
+```{r}
+pred_mlr <- predict(mlr, test.data)
+```
+
+### Descale
+
+```{r}
+# compute y(unscaled)
+y <- test.data$medv*sd+mean
+
+#compute y^hat (unscaled)
+yhat <- pred_mlr*sd+mean
+```
+
+### Compute Test MSE
+
+```{r}
+(MSE.mlr = RMSE(y,yhat)^2)
+```
+
+or
+
+```{r}
+sum((y-yhat)^2)/length(y)
+```
+
+## Compare Test MSE of all models
+
+```{r}
+print(paste(MSE.nn.1, MSE.nn.2, MSE.mlr))
+```
+
+```{r}
+final1 <- data.frame(predictions_NN0=pred_nn_no*sd+mean, predictions_NN1=pred_nn_one*sd+mean,predictions_MLR = pred_mlr*sd+mean, actual_repsonse = test.data$medv*sd+mean)
+kable(head(final1))
+```
+
+## Plot predicted vs. observed
+
+```{r}
+plot(
+  test.data$medv*sd+mean, 
+  pred_nn_no*sd+mean,
+  col="red",
+  ylab = "predicted house price",
+  xlab= "true values of house price",
+  )
+
+# plot nn with 1 layer 3 neurons
+points(test.data$medv*sd+mean, pred_nn_one*sd+mean, col="blue")
+
+#plot mlr 
+points(test.data$medv*sd+mean, pred_mlr*sd+mean, col = "green")
+abline (a=0, b=1)
+```
+
+```{r}
+plot(
+  pred_mlr,
+  pred_nn_no,
+  col = "blue",
+  ylab = "prediction of NN with no hidden layer",
+  xlab = "prediction of MLR"
+)
+abline(a=0, b =1)
+```

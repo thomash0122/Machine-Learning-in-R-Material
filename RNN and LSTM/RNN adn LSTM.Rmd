@@ -1,0 +1,749 @@
+---
+title: "RNN and LSTM"
+author: "Kachun Huang"
+date: "2025-04-29"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(crayon.enabled = FALSE)
+Sys.setenv(CLI_NUM_COLORS = 0)
+```
+
+# RNN and LSTM
+
+## Import Library
+
+```{r}
+library(keras)
+library(tensorflow)
+library(reticulate)
+library(tidyverse)
+library(tidyquant)
+library(zoo)
+library(caret)
+library(tidyquant)
+library(magrittr)
+```
+
+## Data Pre-processing
+
+Before building models, raw data often requires transformation. Common pre-processing steps include:
+
+### **Normalization**
+
+To stabilize model learning, normalize features such as stock prices using min-max scaling:
+
+```{r eval=FALSE, include=TRUE}
+data$min_lagged <- lag(data$Low)
+data$max_lagged <- lag(data$High)
+data$Close_norm <- (data$Close - data$min_lagged) / (data$max_lagged - data$min_lagged)
+```
+
+### **Handling Missing Values**
+
+```{r eval=FALSE, include=TRUE}
+data <- na.omit(data)
+```
+
+### Date Conversion (Optional)
+
+```{r eval=FALSE, include=TRUE}
+data$Date <- as.Date(data$Date)
+```
+
+### Train-Test Splitting
+
+Split your data into training and test sets to evaluate your model's generalization performance:
+
+```{r eval=FALSE, include=TRUE}
+split_index <- floor(0.9 * length(series))
+train_data <- series[1:split_index]
+test_data <- series[(split_index + 1):length(series)]
+```
+
+-   `length(series)` returns the total number of time steps in your dataset.
+
+-   `floor(0.9 * length(series))` calculates an index at 90% of the data.
+
+-   `train_data` selects the first 90% as the training set.
+
+-   `test_data` selects the remaining 10% as the test set.
+
+### Creating Time Series Datasets
+
+```{r eval=FALSE, include=TRUE}
+create_dataset <- function(series, timesteps = 10) {
+  x <- list()
+  y <- c()
+  for (i in 1:(length(series) - timesteps)) {
+    x[[i]] <- series[i:(i + timesteps - 1)]
+    y <- c(y, series[i + timesteps])
+  }
+  x_array <- do.call(rbind, x)
+  return(list(x = x_array, y = y))
+}
+```
+
+This prepares the data in a format compatible with RNNs and LSTMs.
+
+Then apply the `create_dataset()` function:
+
+```{r eval=FALSE, include=TRUE}
+train_set <- create_dataset(train_data, timesteps)
+test_set <- create_dataset(test_data, timesteps)
+```
+
+Then split `train_set` to `x_train`, `y_train` and convert it to tensor
+
+```{r eval=FALSE, include=TRUE}
+#convert to array
+x_train_array <- array(as.numeric(train_set$x), dim = c(nrow(train_set$x), timesteps, 1))
+y_train_array <- as.numeric(train_set$y)
+
+# Convert to TensorFlow tensors
+x_train <- tf$convert_to_tensor(x_train_array, dtype = "float32")
+y_train <- tf$convert_to_tensor(y_train_array, dtype = "float32")
+```
+
+## RNN Model Building
+
+```{r eval=FALSE, include=TRUE}
+input_rnn <- layer_input(shape = c(timesteps, 1))
+
+output_rnn <- input_rnn %>%
+  layer_simple_rnn(units = 32) %>%
+  layer_dense(units = 1)
+
+model_rnn <- keras_model(inputs = input_rnn, outputs = output_rnn)
+```
+
+## LSTM Model Building
+
+```{r eval=FALSE, include=TRUE}
+input_lstm <- layer_input(shape = c(timesteps, 1))
+
+output_lstm <- input_lstm %>%
+  layer_lstm(units = 32) %>%
+  layer_dense(units = 1)
+
+model_lstm <- keras_model(inputs = input_lstm, outputs = output_lstm)
+```
+
+These models can be used for sequence-to-one prediction problems.
+
+## **Compilation and Training**
+
+```{r eval=FALSE, include=TRUE}
+model$compile(
+  optimizer = optimizer_adam(),
+  loss = "mean_squared_error"
+)
+
+history <- model$fit(
+  x = x_train,
+  y = y_train,
+  epochs = r_to_py(100L),
+  batch_size = r_to_py(16L),
+  verbose = 0
+)
+```
+
+`r_to_py()` ensures integers are converted correctly for Python-based TensorFlow backend.
+
+## Prediction
+
+```{r eval=FALSE, include=TRUE}
+predict_next <- function(model, input_seq_array, n_steps = 10) {
+  preds <- c() # empty vector to store prediction
+  current_input <- input_seq_array 
+  for (i in 1:n_steps) {
+    pred <- model$predict(current_input)
+    preds <- c(preds, as.numeric(pred))
+    updated_seq <- c(as.numeric(current_input)[-1], as.numeric(pred))
+    current_input <- array(updated_seq, dim = c(1, timesteps, 1))
+    current_input <- tf$convert_to_tensor(current_input, dtype = "float32")
+  }
+  return(preds)
+}
+```
+
+This function generates `n_steps` future predictions based on a rolling window.
+
+### Rescaling Predictions
+
+If you used normalization, reverse it using the original min and max values:
+
+```{r eval=FALSE, include=TRUE}
+rescaled_value <- norm_value * (original_max - original_min) + original_min
+```
+
+## Model Performance
+
+```{r eval=FALSE, include=TRUE}
+mse <- mean((predicted - actual)^2)
+```
+
+## Visualizing Predictions
+
+```{r eval=FALSE, include=TRUE}
+plot(1:length(actual), actual, type = 'l', col = 'black')
+lines(1:length(predicted), predicted, col = 'red')
+legend("topright", legend = c("Actual", "Predicted"), col = c("black", "red"), lwd = 2)
+```
+
+# Example: sin Curve
+
+Generate a sine wave with the function sin(x) for x ranging from 0 to 20, resulting in a total of 400 points. Plot the generated sequence.
+
+```{r}
+set.seed(123) # set seed
+
+data <- sin(seq(0, 20, length.out = 400)) # create sin data point
+
+# Visualize the sine wave
+plot(
+  as.vector(data), 
+  col = 'blue', 
+  type = 'l', 
+  ylab = "Value", 
+  main ="Sine Wave"
+)
+```
+
+Divide the cleaned dataset into two parts, the **last 10 points for testing y** and **the rest for training**.
+
+```{r}
+length(data)
+train_data <- data[1:(length(data)-10)]
+test_data <- data[(length(data)-9):length(data)]
+```
+
+prepares the data in a format compatible with RNNs and LSTMs.
+
+```{r}
+create_dataset <- function(series, timesteps = 10) {
+  x <- list()
+  y <- c()
+  for (i in 1:(length(series) - timesteps)) {
+    x[[i]] <- series[i:(i + timesteps - 1)]
+    y <- c(y, series[i + timesteps])
+  }
+  x_array <- do.call(rbind, x)
+  return(list(x = x_array, y = y))
+}
+```
+
+Create Training Set
+
+```{r}
+timesteps <- 10
+train_set <- create_dataset(train_data, timesteps)
+```
+
+Convert to Tensor
+
+```{r}
+#convert to array
+x_train_array <- array(as.numeric(train_set$x), dim = c(nrow(train_set$x), timesteps, 1))
+y_train_array <- as.numeric(train_set$y)
+
+# Convert to TensorFlow tensors
+x_train <- tf$convert_to_tensor(x_train_array, dtype = "float32")
+y_train <- tf$convert_to_tensor(y_train_array, dtype = "float32")
+```
+
+Please first build RNN with length of sequence 10 using the training data and the RNN method\
+with only one RNN layer with 32 hidden units, and the loss function of ‘mse’. You will need to\
+create sequences that the RNN can use to learn the pattern. Each input sequence should use 10\
+sequential points to predict the next point.
+
+```{r}
+input_rnn <- layer_input(shape = c(timesteps, 1))
+
+output_rnn <- input_rnn %>%
+  layer_simple_rnn(units = 32) %>%
+  layer_dense(units = 1)
+
+model_rnn <- keras_model(inputs = input_rnn, outputs = output_rnn)
+
+model_rnn$compile(
+  optimizer = optimizer_adam(),
+  loss = "mean_squared_error"
+)
+```
+
+Please first build LSTM with length of sequence 10 using the training data and the LSTM method\
+with only one LSTM layer with 32 hidden units, and the loss function of ‘mse’. You will need to\
+create sequences that the RNN can use to learn the pattern. Each input sequence should use 10\
+sequential points to predict the next point.
+
+```{r}
+input_lstm <- layer_input(shape = c(timesteps, 1))
+
+output_lstm <- input_lstm %>%
+  layer_lstm(units = 32) %>%
+  layer_dense(units = 1)
+
+model_lstm <- keras_model(inputs = input_lstm, outputs = output_lstm)
+
+model_lstm$compile(
+optimizer = optimizer_adam(),
+loss = "mean_squared_error"
+)
+```
+
+Plot the training loss for RNN and LSTM.
+
+```{r}
+history_rnn <- model_rnn$fit(
+  x = x_train,
+  y = y_train,
+  epochs = r_to_py(100L),
+  batch_size = r_to_py(16L),
+  verbose = 0
+)
+
+history_lstm <- model_lstm$fit(
+x = x_train,
+y = y_train,
+epochs = r_to_py(100L),
+batch_size = r_to_py(16L),
+verbose = 0
+)
+```
+
+```{r}
+plot(
+  history_rnn$history$loss, 
+  type = 'l', 
+  col = 'red', 
+  lwd = 2,
+  ylim = range(c(
+    history_rnn$history$loss,
+    history_lstm$history$loss)
+    ),
+  xlab = "Epoch", 
+  ylab = "Training Loss", 
+  main = "Training Loss Comparison"
+)
+
+lines(
+  history_lstm$history$loss, 
+  col = 'blue', 
+  lwd = 2
+)
+
+legend(
+  "topright", 
+  legend = c("RNN", "LSTM"), 
+  col = c("red", "blue"),
+  lwd = 2
+)
+
+```
+
+Please compute the MSE of each model in Question 3 and Question 4 for the last 10 points.\
+Compare the performance of the algorithms in Question 3 and Question 4 in length-10 forecast\
+using the testing data, and plot the predictions along with the actual data.
+
+```{r}
+# Predictions
+input_seq <- data[381:390]
+
+input_seq_array <- array(
+  as.numeric(input_seq), 
+  dim = c(1, timesteps,1)
+)
+
+input_seq_array <- tf$convert_to_tensor(
+  input_seq_array, 
+  dtype = "float32"
+)
+
+predict_next <- function(model, input_seq_array, n_steps = 10) {
+  preds <- c()
+  current_input <- input_seq_array
+  
+  for (i in 1:n_steps) {
+    pred <- model$predict(current_input)
+    preds <- c(preds, as.numeric(pred))
+    updated_seq <- c(as.numeric(current_input)[-1], as.numeric(pred))
+    current_input <- array(updated_seq, dim = c(1, timesteps, 1))
+    current_input <- tf$convert_to_tensor(current_input, dtype = "float32")
+  }
+  
+  return(preds)
+}
+```
+
+```{r}
+# 10-step prediction
+rnn_preds <- predict_next(
+  model_rnn, 
+  input_seq_array, 
+  n_steps = 10
+)
+```
+
+```{r}
+lstm_preds <- predict_next(
+  model_lstm, 
+  input_seq_array, 
+  n_steps = 10
+)
+```
+
+### Comparison
+
+```{r}
+plot(
+  1:400, 
+  data, 
+  type = 'l', 
+  col = 'black', 
+  lwd = 2, 
+  ylab = "Value",
+  xlab = "Time Step",
+  main = "True vs Predicted (Last 10 Points)"
+)
+
+lines(
+  391:400, 
+  rnn_preds, 
+  col = 'red', 
+  lwd = 2
+)
+
+lines(
+  391:400, 
+  lstm_preds, 
+  col = 'blue', 
+  lwd = 2
+)
+
+points(
+  391:400, 
+  test_data, 
+  col = 'black', 
+  pch = 16
+)
+
+legend(
+  "bottomleft", 
+  legend = c("True", "RNN Prediction", "LSTM Prediction"),
+  col = c("black", "red", "blue"), 
+  lwd = 2, 
+  pch = c(16, NA, NA)
+)
+```
+
+# Example: AAPL
+
+```{r}
+data <- read.csv("AAPL.csv")
+
+# transform the data type from 'chr' to 'Date'
+data$Date = as.Date(data$Date)
+
+head(data)
+```
+
+Plot the close price vs. date to visualize the data we will analyze.
+
+```{r}
+ggplot(
+  data, 
+  aes(x=Date, y = Close)
+) + geom_line()
+```
+
+Then, use the ‘min-max scaler’ to normalize our stock price data.
+
+Scaled_x = (x-lagged_min(x))/(lagged_max(x) – lagged_min(x)).
+
+Please report the values of the last 10 scaled close prices.
+
+```{r}
+data$min_lagged = lag(data$Low)
+data$max_lagged = lag(data$High)
+
+data$Close_norm = (data$Close - data$min_lagged) / (data$max_lagged -data$min_lagged)
+```
+
+```{r}
+model_data <- matrix(
+  data$Close_norm[-1] #excluding volume
+)
+```
+
+Divide the cleaned dataset into two parts, the last 10 prices for testing y and the rest for\
+training (the last 10 prices in the training set will be used as testing x). Please report how many\
+days of stock price are divided into the training set.
+
+```{r}
+set.seed(123)
+
+# Create sliding window dataset
+create_dataset <- function(series, timesteps = 10) {
+  x <- list()
+  y <- c()
+  for (i in 1:(length(series) - timesteps)) {
+  x[[i]] <- series[i:(i + timesteps - 1)]
+  y <- c(y, series[i + timesteps])
+  }
+  x_array <- do.call(rbind, x)
+  return(list(x = x_array, y = y))
+}
+
+# Prepare training data
+timesteps <- 10
+
+train_data <- model_data[1:(length(model_data)-10)] # training = all except last 10 days
+
+test_data <- model_data[(length(model_data)-9):length(model_data)] # true last 10 points
+
+train_set <- create_dataset(train_data, timesteps)
+
+x_train_array <- array(
+  as.numeric(train_set$x), 
+  dim = c(nrow(train_set$x), timesteps, 1)
+)
+
+y_train_array <- as.numeric(train_set$y)
+
+x_train <- tf$convert_to_tensor(
+  x_train_array, 
+  dtype = "float32"
+)
+
+y_train <- tf$convert_to_tensor(
+  y_train_array, 
+  dtype = "float32"
+)
+```
+
+Please first build the predictive model to predict 10-days stock close price using the training\
+data and the LSTM method with only one LSTM layer with 200 hidden units, and the loss\
+function of ‘mse’. Please make predictions on the 10 observations in the testing set by using the\
+last 10 in the training dataset and compute the Test MSE using the testing data. Scale the\
+predicted stock price back and plot the 10-days predictions and the true stock close price in the\
+same figure. Also, try to predict the close price of 2022-3-29.
+
+```{r}
+# Build RNN Model
+input_rnn <- layer_input(shape = c(timesteps, 1))
+
+output_rnn <- input_rnn %>%
+  layer_simple_rnn(units = 32) %>%
+  layer_dense(units = 1)
+
+model_rnn <- keras_model(inputs = input_rnn, outputs = output_rnn)
+
+model_rnn$compile(
+  optimizer = optimizer_adam(),
+  loss = "mean_squared_error"
+)
+
+history_rnn <- model_rnn$fit(
+  x = x_train,
+  y = y_train,
+  epochs = r_to_py(100L),
+  batch_size = r_to_py(16L),
+  verbose = 0
+)
+```
+
+Please first build the predictive model to predict 10-days stock close price using the training\
+data and the RNN method with only one RNN layer with 200 hidden units, and the loss function\
+of ‘mse’. Please make predictions on the 10 observations in the testing set by using the last 10\
+in the training dataset and compute the Test MSE using the testing data. Scale the predicted\
+stock price back and plot the 10-days predictions and the true stock close price in the same\
+figure. Also, try to predict the close price of 2022-3-29.
+
+```{r}
+# Build LSTM Model
+input_lstm <- layer_input(shape = c(timesteps, 1))
+
+output_lstm <- input_lstm %>%
+  layer_lstm(units = 32) %>%
+  layer_dense(units = 1)
+
+model_lstm <- keras_model(inputs = input_lstm, outputs = output_lstm)
+
+model_lstm$compile(
+  optimizer = optimizer_adam(),
+  loss = "mean_squared_error"
+)
+
+history_lstm <- model_lstm$fit(
+  x = x_train,
+  y = y_train,
+  epochs = r_to_py(100L),
+  batch_size = r_to_py(16L),
+  verbose = 0
+)
+```
+
+### Comparison
+
+Please compare the performance of the algorithms in Question 4 and Question 5 in 10-days\
+forecast using the testing data
+
+```{r}
+# Prepare input for forecasting
+input_seq <- model_data[(length(model_data)-10):(length(model_data)-1)] # 10 points before test
+
+input_seq_array <- array(as.numeric(input_seq), dim = c(1, timesteps,1))
+
+input_seq_array <- tf$convert_to_tensor(input_seq_array, dtype = "float32")
+
+# Prediction function
+predict_next <- function(model, input_seq_array, n_steps = 10) {
+  preds <- c()
+  current_input <- input_seq_array
+  for (i in 1:n_steps) {
+    pred <- model$predict(current_input)
+    preds <- c(preds, as.numeric(pred))
+    updated_seq <- c(as.numeric(current_input)[-1], as.numeric(pred))
+    current_input <- array(updated_seq, dim = c(1, timesteps, 1))
+    current_input <- tf$convert_to_tensor(current_input, dtype = "float32")
+  }
+  return(preds)
+}
+```
+
+```{r}
+rnn_preds_norm <- predict_next(
+  model_rnn, 
+  input_seq_array, 
+  n_steps = 10
+)
+```
+
+```{r}
+lstm_preds_norm <- predict_next(
+  model_lstm, 
+  input_seq_array, 
+  n_steps = 10
+)
+```
+
+Scale Back
+
+```{r}
+# Initialize vectors to store scaled-back predictions and true prices
+rnn_preds_original <- numeric(10)
+lstm_preds_original <- numeric(10)
+true_prices_original <- numeric(10)
+
+# Scale back one by one (because each day uses its own lagged High/Low)
+for (i in 1:10) {
+  lagged_min <- data$Low[length(train_data) + i - 1] # lag(Low) for that day
+  lagged_max <- data$High[length(train_data) + i - 1] # lag(High) for that day
+  rnn_preds_original[i] <- rnn_preds_norm[i] * (lagged_max - lagged_min) + lagged_min
+  lstm_preds_original[i] <- lstm_preds_norm[i] * (lagged_max - lagged_min) + lagged_min
+  true_prices_original[i] <- data$Close[length(train_data) + i] # true Close at day
+}
+```
+
+MSE
+
+```{r}
+mse_rnn <- mean((rnn_preds_original - true_prices_original)^2)
+
+mse_lstm <- mean((lstm_preds_original - true_prices_original)^2)
+
+cat("Test MSE (RNN, original scale):", mse_rnn, "\n")
+cat("Test MSE (LSTM, original scale):", mse_lstm, "\n")
+```
+
+Plot 10-Day Forecast (Original Scale)
+
+```{r}
+plot(
+  (length(train_data)+1):(length(train_data)+10),
+  true_prices_original,
+  type = 'l', 
+  lwd = 2, 
+  col = 'black', 
+  xlab = "Time Index", 
+  ylab = "Close Price (USD)",
+  main = "10-Day Forecast vs True (Original Scale)"
+)
+
+lines(
+  (length(train_data)+1):(length(train_data)+10),
+  rnn_preds_original, 
+  col = 'red', 
+  lwd = 2
+)
+
+lines(
+  (length(train_data)+1):(length(train_data)+10),
+  lstm_preds_original, 
+  col = 'blue', 
+  lwd = 2
+)
+
+legend(
+  "bottomleft", 
+  legend = c("True Close", "RNN Prediction", "LSTM Prediction"),
+  col = c("black", "red", "blue"), 
+  lwd = 2
+)
+```
+
+\
+Plot 1-Step Ahead Forecast Only (Original Scale)
+
+```{r}
+plot(
+  1, 
+  true_prices_original[1], 
+  type = 'p', 
+  lwd = 2, 
+  col = 'black',
+  xlab = "Forecast Horizon (1 Day)", 
+  ylab = "Close Price (USD)",
+  main = "1-Day Forecast in Original Scale",
+  xlim = c(0.5, 1.5),
+  ylim = range(c(true_prices_original[1], rnn_preds_original[1], lstm_preds_original[1]))
+)
+
+axis(
+  1, 
+  at = 1, 
+  labels = paste0("Day ", length(train_data)+1)
+)
+
+points(
+  1, 
+  rnn_preds_original[1], 
+  col = 'red', 
+  pch = 17
+)
+
+points(
+  1, 
+  lstm_preds_original[1], 
+  col = 'blue', 
+  pch = 17
+)
+
+legend(
+  "topleft", 
+  legend = c("True Close", "RNN Forecast", "LSTM Forecast"),
+  col = c("black", "red", "blue"), 
+  pch = c(16, 17, 17)
+)
+```
+
+Model Test MSE (Original USD Scale)
+
+-   RNN 13.13
+
+-   LSTM 10.63
+
+    LSTM has lower MSE than RNN. LSTM outperforms RNN when predicting actual stock prices.

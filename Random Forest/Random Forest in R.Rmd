@@ -1,0 +1,416 @@
+---
+title: "Random Forest"
+author: "Kachun Huang"
+date: "2025-04-02"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Random Forest in R
+
+## Import Dependencies
+
+```{r}
+library(dplyr)
+library(caret)
+library(randomForest)
+```
+
+## Fit Random Forest Model
+
+```{r eval=FALSE, include=TRUE}
+model <- randomForest(
+  formula,
+  data,
+  importance = TRUE
+)
+```
+
+Parameter:
+
+`importance` : a matrix with **`nclass`** + 2 (for classification) or two (for regression) columns. For classification, the first **`nclass`** columns are the class-specific measures computed as mean descrease in accuracy. The **`nclass`** + 1st column is the mean descrease in accuracy over all classes. The last column is the mean decrease in Gini index. For Regression, the first column is the mean decrease in accuracy and the second the mean decrease in MSE. If **`importance=FALSE`**, the last measure is still returned as a vector.
+
+## Output Model
+
+```{r eval=FALSE, include=TRUE}
+print(model)
+```
+
+## Prediction
+
+```{r eval=FALSE, include=TRUE}
+pred_rf<-predict(
+  model,
+  test_data
+)
+```
+
+## Variable Importance
+
+```{r eval=FALSE, include=TRUE}
+varImpPlot(model)
+```
+
+The plot ranks features based on their **importance scores**, which measure how much each feature contributes to the Random Forest’s predictive performance. Features with higher importance scores are more influential in making accurate predictions, while those with lower scores have less impact.
+
+-   **X-axis**: Typically shows the importance score (or a scaled version of it).
+
+-   **Y-axis**: Lists the features, often sorted in descending order of importance.
+
+-   The plot visually highlights which variables matter most, making it easier to interpret the model and focus on key drivers.
+
+Random Forests calculate feature importance in a few different ways. The two most common methods are:
+
+#### a. **Mean Decrease in Impurity (Gini Importance)**
+
+-   **What it measures**: This method calculates the total reduction in impurity (e.g., Gini impurity for classification or variance for regression) brought by a feature across all trees in the forest.
+
+-   **How it works**:
+
+    -   For each tree, the algorithm evaluates how much a feature reduces the impurity when it’s used to split a node.
+
+    -   The importance of a feature is the average of these reductions across all trees.
+
+    -   Features that consistently reduce impurity by a large amount (e.g., by creating purer child nodes) get higher scores.
+
+-   **Use case**: Common in classification tasks where Gini impurity or entropy is used.
+
+#### b. **Mean Decrease in Accuracy (Permutation Importance)**
+
+-   **What it measures**: This method assesses how much the model’s accuracy decreases when a feature’s values are randomly shuffled, breaking its relationship with the target variable.
+
+-   **How it works**:
+
+    -   The model’s performance (e.g., accuracy, RMSE) is calculated on a validation set or out-of-bag (OOB) samples.
+
+    -   For each feature, its values are permuted, and the model’s performance is recalculated.
+
+    -   The drop in performance after permutation indicates the feature’s importance: a larger drop means the feature was more important.
+
+-   **Use case**: Often considered more robust because it directly measures the impact on predictive performance, not just node purity.
+
+## Hyper-parameter Tuning
+
+In caret package, we can do hyper-parameter tuning and find the best tune.
+
+```{r eval=FALSE, include=TRUE}
+# 10-fold CV
+control <- trainControl(
+  method = "cv", 
+  number = 10
+  )
+
+# train the rf using 10-fold CV
+rf_caret <- train(
+  formula, 
+  data, 
+  method = "rf", 
+  trControl = control, 
+  importance = TRUE
+  )
+```
+
+### Output the bestTune
+
+```{r eval=FALSE, include=TRUE}
+print(rf_caret$bestTune)
+```
+
+# Classification Example
+
+## Import data
+
+```{r}
+bank <- read.csv("/Users/thomashuang/Downloads/banknote.csv")
+```
+
+```{r}
+str(bank)
+```
+
+## Remove Missing Value
+
+```{r}
+bank <- na.omit(bank)
+str(bank)
+```
+
+There are no missing value in the dataset
+
+## Factorize Response
+
+```{r}
+bank$class <- as.factor(bank$class)
+```
+
+## Data Splitting
+
+```{r}
+set.seed(123)
+training.samples <- bank$class %>% createDataPartition(p=0.75, list=FALSE)
+train.data <- bank[training.samples,]
+test.data <- bank[-training.samples,]
+```
+
+## Random Forest Model
+
+```{r}
+rf_model <- randomForest(
+  class~.,
+  data = train.data,
+  importance = TRUE
+)
+print(rf_model)
+```
+
+### Variable Importance (Both)
+
+```{r}
+importance(rf_model)
+```
+
+#### plot
+
+```{r}
+varImpPlot(rf_model)
+```
+
+### Mean Decrease Accuracy
+
+```{r}
+varImp(rf_model, type=1)
+```
+
+#### plot
+
+```{r}
+# Plot MeanDecreaseAccuracy
+varImpPlot(rf_model, type=1)
+```
+
+### Mean Decrease Gini
+
+```{r}
+varImp(rf_model, type=2)
+```
+
+#### plot
+
+```{r}
+# Plot MeanDecreaseGini
+varImpPlot(rf_model, type=2)
+```
+
+### Prediction
+
+```{r}
+pred_rf <- predict(rf_model, test.data)
+```
+
+### Confusion Matrix
+
+```{r}
+confusionMatrix(pred_rf, test.data$class, positive = "1")
+```
+
+## Hyper-parameter Tuning
+
+```{r}
+set.seed(123)
+# 10-fold CV
+control <- trainControl(
+  method = "cv", 
+  number = 10
+  )
+
+# train the rf using 10-fold CV
+rf_caret <- train(
+  class ~ ., 
+  data = train.data, 
+  method = "rf", 
+  trControl = control, 
+  importance = TRUE
+  )
+
+print(rf_caret)
+```
+
+### Access bestTune
+
+```{r}
+print(rf_caret$bestTune)
+```
+
+### Access final Model
+
+```{r}
+final_model <- rf_caret$finalModel
+final_model
+```
+
+### Variable Importance (Both)
+
+```{r}
+importance(final_model)
+```
+
+#### plot
+
+```{r}
+varImpPlot(final_model)
+```
+
+### Mean Decrease Accuracy
+
+```{r}
+varImp(final_model, type=1)
+```
+
+#### plot
+
+```{r}
+# Plot MeanDecreaseAccuracy
+varImpPlot(final_model, type=1)
+```
+
+### Mean Decrease Gini
+
+```{r}
+varImp(final_model, type=2)
+```
+
+#### plot
+
+```{r}
+# Plot MeanDecreaseGini
+varImpPlot(final_model, type=2)
+```
+
+### Prediction
+
+```{r}
+pred_caret <- predict(
+  rf_caret,
+  newdata = test.data
+)
+```
+
+### Confusion Matrix
+
+```{r}
+confusionMatrix(
+  pred_caret,
+  test.data$class,
+  positive = "1"
+)
+```
+
+# Regression Example
+
+## Import data
+
+```{r}
+data("Boston", package = "MASS")
+head(Boston)
+```
+
+```{r}
+str(Boston)
+```
+
+## Remove Missing Value
+
+```{r}
+Boston <- na.omit(Boston)
+str(Boston)
+```
+
+There are no missing value in the dataset
+
+## Data Splitting
+
+```{r}
+set.seed(123)
+training.samples <- Boston$medv %>% createDataPartition(p=0.8, list=FALSE)
+train.data <- Boston[training.samples,]
+test.data <- Boston[-training.samples,]
+```
+
+## Best Model
+
+```{r}
+set.seed(123)
+
+# 10-fold CV
+control <- trainControl(
+  method = "cv", 
+  number = 10
+  )
+
+# train the rf using 10-fold CV
+model <- train(
+  medv ~ ., 
+  data = train.data, 
+  method = "rf", 
+  trControl = control
+  )
+
+print(model)
+```
+
+### Access bestTune
+
+```{r}
+print(model$bestTune)
+```
+
+### Prediction
+
+```{r}
+pred <- predict(
+  model,
+  newdata = test.data
+)
+```
+
+### RMSE
+
+```{r}
+RMSE(pred, test.data$medv)
+```
+
+## Model with optimal mtry and 500 tree
+
+```{r}
+set.seed(123)
+rf <- randomForest(
+  medv~.,
+  data=Boston,
+  ntree=500,
+  mtry=7,
+  keep.forest=FALSE, #not save each individual CART tree in the output
+  importance=TRUE
+)
+rf
+```
+
+### RMSE
+
+```{r}
+sqrt(rf$mse[500])
+```
+
+### Variable Importance Values
+
+```{r}
+importance(rf)
+```
+
+#### plot
+
+```{r}
+varImpPlot(rf)
+```

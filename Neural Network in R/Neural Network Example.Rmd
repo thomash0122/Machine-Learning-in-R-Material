@@ -1,0 +1,461 @@
+---
+title: "Neural Network Example"
+author: "Kachun Huang"
+date: "2025-03-03"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Neural Network Classification Example
+
+## Import Libraries
+
+```{r}
+library(neuralnet)
+library(MASS)
+library(tidyverse)
+library(leaps)
+library(car)
+library(caret)
+library(dplyr)
+library(lmtest)
+```
+
+## Import Dataset
+
+The banknote.csv data (see attached) were extracted from images that were taken from genuine and forged banknote-like specimens. Yes, this is a Catch Me if You Can story. For digitization, an industrial camera usually used for print inspection was used. The final images have 400 x 400 pixels. (\*3D would be called the voxels) Wavelet Transform tool were used to extract features from images.
+
+\
+There are 1,372 banknotes, and 5 variables:
+
+1.  variance of Wavelet Transformed image (continuous)
+
+2.  skewness of Wavelet Transformed image (continuous)
+
+3.  curtosis of Wavelet Transformed image (continuous)
+
+4.  entropy of image (continuous)
+
+5.  class (binary) – this is the response variable of interest, 1 (forged) or 0 (genuine)
+
+```{r}
+bank <- read.table("/Users/thomashuang/Downloads/banknote.csv",sep=",",header = TRUE)
+head(bank)
+```
+
+```{r}
+str(bank)
+```
+
+## Data Pre-Processing
+
+### Remove Missing Values
+
+```{r}
+bank <- na.omit(bank)
+str(bank)
+```
+
+None of the observation have missing values.
+
+### Factorize response
+
+## Data Splitting
+
+```{r}
+set.seed(123)
+training.samples <- bank$class %>% createDataPartition(p=0.75, list=FALSE)
+train.data <- bank[training.samples,]
+test.data <- bank[-training.samples,]
+```
+
+## Perceptron Model with No Hidden Layers
+
+### with SSE Loss function
+
+```{r}
+p_model_sse <- neuralnet(
+  class ~., 
+  train.data, 
+  hidden = 0, # no hidden layer
+  err.fct = "sse", # sse loss function
+  linear.output = FALSE, # non-linear output for classification
+  act.fct = "logistic"# logistic activation function
+  )
+```
+
+#### Plot model
+
+```{r}
+plot(p_model_sse, rep="best")
+```
+
+#### Predict on Test Data
+
+```{r}
+pred_sse <- predict(p_model_sse, test.data)
+pred_sse_class <- ifelse(pred_sse > 0.5,1,0)
+```
+
+#### Confusion Matrix
+
+```{r}
+cm1 <- confusionMatrix(factor(pred_sse_class), factor(test.data$class), positive = "1")
+cm1
+```
+
+When positive class = "1" Detect forged
+
+\| Actual/Predicted \| Negative (Actual 0) \| Positive (Acutal 1) \|
+
+\| Negative (Predicted 0) \| **True Negative (TN)** \| **False Negative(FN)** \|
+
+\| Positive (Predicted 1) \| **False Positive(FP)** \| **True Positive(TP)** \|
+
+#### Sensitivity
+
+$Sensitivity= P(\text{true positive}|\text{correct}) = \frac{TP}{TP+FN}$
+
+```{r}
+181/(181+1)
+```
+
+```{r}
+cm1$byClass["Sensitivity"]
+```
+
+#### Specificity
+
+$Specificity= P(\text{true negative}|\text{correct})=\frac{TN}{TN+FP}$
+
+```{r}
+160 / (160+1)
+```
+
+```{r}
+cm1$byClass["Specificity"]
+```
+
+#### Overall Accuracy
+
+$P(\text{Predicted Correctly}) = \frac{TP+TN}{TP+TN+FP+FN}$
+
+```{r}
+(181+160)/(181+160+1+1)
+```
+
+```{r}
+cm1$overall["Accuracy"]
+```
+
+### with CE Loss function
+
+```{r}
+p_model_ce <- neuralnet(
+  class ~., 
+  train.data, 
+  hidden = 0, 
+  err.fct = "ce",
+  linear.output = FALSE,
+  act.fct = "logistic"
+  )
+```
+
+#### Plot model
+
+```{r}
+plot(p_model_ce, rep="best")
+```
+
+#### Predict on Test Data
+
+```{r}
+pred_ce <- predict(p_model_ce, test.data)
+pred_ce_class <- ifelse(pred_ce> 0.5,1,0)
+```
+
+#### Confusion Matrix
+
+```{r}
+cm2 <- confusionMatrix(factor(pred_ce_class), factor(test.data$class), positive = "1")
+cm2
+```
+
+When positive class = "1" Detect forged
+
+\| Actual/Predicted \| Negative (Actual 0) \| Positive (Acutal 1) \|
+
+\| Negative (Predicted 0) \| **True Negative (TN)** \| **False Negative(FN)** \|
+
+\| Positive (Predicted 1) \| **False Positive(FP)** \| **True Positive(TP)** \|
+
+#### Sensitivity
+
+$Sensitivity= P(\text{true positive}|\text{correct}) = \frac{TP}{TP+FN}$
+
+```{r}
+179 / (179+3)
+```
+
+```{r}
+cm2$byClass["Sensitivity"]
+```
+
+#### Specificity
+
+$Specificity= P(\text{true negative}|\text{correct})=\frac{TN}{TN+FP}$
+
+```{r}
+160/(160+1)
+```
+
+```{r}
+cm2$byClass["Specificity"]
+```
+
+#### Overall Accuracy
+
+$P(\text{Predicted Correctly}) = \frac{TP+TN}{TP+TN+FP+FN}$
+
+```{r}
+(160+178)/(160+178+1+3)
+```
+
+```{r}
+cm2$overall["Accuracy"]
+```
+
+## Logistic Regression
+
+### Fit model
+
+```{r}
+logit_model <- glm(class ~ variance + skewness + curtosis + entropy, 
+                   data = train.data, 
+                   family = "binomial")
+summary(logit_model)
+```
+
+#### Predict on Test Data
+
+```{r}
+pred_logit <- predict(logit_model, test.data)
+pred_logit_class <- ifelse(pred_logit > 0.5, 1,0)
+```
+
+#### Confusion Matrix
+
+```{r}
+cm3 <- confusionMatrix(factor(pred_logit_class),factor(test.data$class), positive = "1")
+cm3
+```
+
+When positive class = "1" Detect forged
+
+\| Actual/Predicted \| Negative (Actual 0) \| Positive (Acutal 1) \|
+
+\| Negative (Predicted 0) \| **True Negative (TN)** \| **False Negative(FN)** \|
+
+\| Positive (Predicted 1) \| **False Positive(FP)** \| **True Positive(TP)** \|
+
+#### Sensitivity
+
+$Sensitivity= P(\text{true positive}|\text{correct}) = \frac{TP}{TP+FN}$
+
+```{r}
+179 / (3+179)
+```
+
+```{r}
+cm3$byClass["Sensitvity"]
+```
+
+#### Specificity
+
+$Specificity= P(\text{true negative}|\text{correct})=\frac{TN}{TN+FP}$
+
+```{r}
+160/(160+1)
+```
+
+```{r}
+cm3$byClass["Specificity"]
+```
+
+#### Overall Accuracy
+
+$P(\text{Predicted Correctly}) = \frac{TP+TN}{TP+TN+FP+FN}$
+
+```{r}
+(179+160)/(179+160+1+3)
+```
+
+```{r}
+cm3$overall["Accuracy"]
+```
+
+## Perceptron Model with 1 Hidden Layers and 3 neurons
+
+### with SSE Loss function
+
+```{r}
+p_model_layer_sse <- neuralnet(
+  class ~., 
+  train.data, 
+  hidden = 3, 
+  err.fct = "sse",
+  linear.output = FALSE,
+  act.fct = "logistic"
+  )
+```
+
+#### Plot model
+
+```{r}
+plot(p_model_layer_sse, rep="best")
+```
+
+#### Predict on Test Data
+
+```{r}
+pred_layer_sse <- predict(p_model_layer_sse, test.data)
+pred_layer_sse_class <- ifelse(pred_layer_sse > 0.5,1,0)
+```
+
+#### Confusion Matrix
+
+```{r}
+cm4 <- confusionMatrix(factor(pred_layer_sse_class), factor(test.data$class), positive = "1")
+cm4
+```
+
+When positive class = "1" Detect forged
+
+\| Actual/Predicted \| Negative (Actual 0) \| Positive (Acutal 1) \|
+
+\| Negative (Predicted 0) \| **True Negative (TN)** \| **False Negative(FN)** \|
+
+\| Positive (Predicted 1) \| **False Positive(FP)** \| **True Positive(TP)** \|
+
+#### Sensitivity
+
+$Sensitivity= P(\text{true positive}|\text{correct}) = \frac{TP}{TP+FN}$
+
+```{r}
+182/(182+0)
+```
+
+```{r}
+cm4$byClass["Sensitivity"]
+```
+
+#### Specificity
+
+$Specificity= P(\text{true negative}|\text{correct})=\frac{TN}{TN+FP}$
+
+```{r}
+161 / (0+161)
+```
+
+```{r}
+cm4$byClass["Specificity"]
+```
+
+#### Overall Accuracy
+
+$P(\text{Predicted Correctly}) = \frac{TP+TN}{TP+TN+FP+FN}$
+
+```{r}
+(161+182)/(161+182+0+0)
+```
+
+```{r}
+cm4$overall["Accuracy"]
+```
+
+### with CE Loss function
+
+```{r}
+p_model_layer_ce <- neuralnet(
+  class ~., 
+  train.data, 
+  hidden = 3, 
+  err.fct = "ce",
+  linear.output = FALSE,
+  act.fct = "logistic"
+  )
+```
+
+#### Plot model
+
+```{r}
+plot(p_model_layer_ce, rep="best")
+```
+
+#### Predict on Test Data
+
+```{r}
+pred_layer_ce <- predict(p_model_layer_ce, test.data)
+pred_layer_ce_class <- ifelse(pred_layer_ce > 0.5,1,0)
+```
+
+#### Confusion Matrix
+
+```{r}
+cm5 <- confusionMatrix(factor(pred_layer_ce_class), factor(test.data$class), positive = "1")
+cm5
+```
+
+When positive class = "1" Detect forged
+
+\| Actual/Predicted \| Negative (Actual 0) \| Positive (Acutal 1) \|
+
+\| Negative (Predicted 0) \| **True Negative (TN)** \| **False Negative(FN)** \|
+
+\| Positive (Predicted 1) \| **False Positive(FP)** \| **True Positive(TP)** \|
+
+#### Sensitivity
+
+$Sensitivity= P(\text{true positive}|\text{correct}) = \frac{TP}{TP+FN}$
+
+```{r}
+182/(182+0)
+```
+
+```{r}
+cm5$byClass["Sensitivity"]
+```
+
+#### Specificity
+
+$Specificity= P(\text{true negative}|\text{correct})=\frac{TN}{TN+FP}$
+
+```{r}
+(161)/(161+0)
+```
+
+```{r}
+cm5$byClass["Specificity"]
+```
+
+#### Overall Accuracy
+
+$P(\text{Predicted Correctly}) = \frac{TP+TN}{TP+TN+FP+FN}$
+
+```{r}
+(161+182)/(161+182+0+0)
+```
+
+```{r}
+cm5$overall["Accuracy"]
+```
+
+## Result
+
+The prediction with hidden layer is better than no hidden layer in this task.

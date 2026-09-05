@@ -1,0 +1,159 @@
+---
+title: "SVD"
+author: "Kachun Huang"
+date: "2025-03-27"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# SVD in R
+
+## Generalized Inverse
+
+Consider the following system of linear equations:
+
+$$
+\begin{pmatrix}
+2 & 1 \\ 4 &2
+\end{pmatrix} 
+\begin{pmatrix}
+y_1 \\ y_2
+\end{pmatrix} =
+\begin{pmatrix}
+1 \\ 1
+\end{pmatrix} 
+$$
+
+Since
+
+$$
+\begin{pmatrix}
+2 & 1 \\ 4 &2
+\end{pmatrix}
+$$
+
+is a Singular matrix, where the determinant is 0. So there is no exact solution but it is possible to get a solution in the least-squares sense.
+
+Recall, the definition of inverse, given $A$ is non-singular:
+
+$$
+AA^{-1}A = A
+$$
+
+Now suppose $A$ is singular, then the inverse $A^{-1}$ doesn't exist.
+
+But, we can compute a Moore-Penrose generalized Inverse $A^+$, such that
+
+$$
+AA^+A = A
+$$
+
+where $A^+$ is given by
+
+$$
+A^+ = (A^TA)^{-1}A^T
+$$
+
+Relation to SVD, Moore-Penrose generalized Inverse $A^+$ is given by
+
+If $A = U\Sigma V^T$, then $A^+ = V\Sigma^+ U^T$
+
+where,
+
+-   $U$ is a $n \times p$ orthonormal matrix
+
+-   $V$ is a $p \times p$ orthonormal matrix
+
+-   $\Sigma$ is the $p \times p$ diagonal matrix
+
+-   $\Sigma^+$ is the $\Sigma$ diagonal matrix but take reciporical of all diagonal entries and they have the same rank\
+
+```{r}
+X <- matrix(
+  c(2,4,1,2),
+  nrow=2
+)
+X
+```
+
+Do SVD of X
+
+```{r}
+svd_X <- svd(X)
+svd_X
+```
+
+```{r}
+U <- svd_X$u
+Sigma <-diag(svd_X$d)
+V <- svd_X$v
+```
+
+Find $\Sigma^+$
+
+```{r}
+Sigma_plus <- diag(c(1/svd_X$d[1],0))
+Sigma_plus
+```
+
+Find $X^+$
+
+```{r}
+Xinv <- V %*% Sigma_plus %*% t(U)
+Xinv
+```
+
+We can also use `ginv()` from MASS Library
+
+```{r}
+library(MASS)
+ginv(X)
+```
+
+So with the $A^+$, we can compute the solution of this system of linear equation
+
+$$
+x = A^+y
+$$
+
+```{r}
+Xinv %*% c(1,1)
+```
+
+## Least Square Estimation
+
+Consider the multiple linear regression model in matrix notation:
+
+$$
+Y = \beta X
+$$
+
+Then we can derive estimation of the $\beta$ using Moore-Penrose generalized Inverse
+
+$$
+\hat{\beta} = (X^TX)^{-1}X^TY
+$$
+
+Example
+
+```{r}
+set.seed(123)
+n <- 100
+x1 <- rnorm(n)
+x2 <- rexp(n)
+y <- 2-1*x1+3*x2+rnorm(n)
+
+X <- cbind(1,x1,x2)
+beta.est <- solve(t(X) %*% X) %*% t(X) %*% y
+beta.est
+```
+
+OLS summary
+
+```{r}
+fit <- lm(y ~ X)
+summary(fit)
+```

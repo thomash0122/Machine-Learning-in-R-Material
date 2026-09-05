@@ -1,0 +1,150 @@
+---
+title: "Monte Carlo Integration"
+author: "Kachun Huang"
+date: "2025-04-04"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Monte Carlo Integration
+
+Monte Carlo Integration is a statistical method based on random sampling
+
+Idea:
+
+-   If $X$ is a random variable with pdf $f(x)$, then
+
+$$
+E[g(X)] = \int_{-\infty}^{\infty}g(x)f(x)dx
+$$
+
+-   Thus, to estimate $\omega = \int_a^bg(x)dx$, we do
+
+$$
+X_1,...,X_n \sim U(a,b) \text{, then } \hat{\omega} = \frac{1}{n}\sum_{i=1}^{n}g(X_i)
+$$
+
+## Algorithm
+
+1) Generate iid $X_1,...,X_n$ from $U(a,b)$
+
+2) Compute $\bar{g(X)} = \frac{1}{n}\sum_{i=1}^{n}g(X_i)$
+
+3) then $\hat{\omega} = (b-a)\bar{g(X)}$
+
+## Example
+
+Compute a Monte Carlo Estimate of $\omega = \int_0^1e^{-x}dx$
+
+```{r}
+set.seed(123)
+n<-10000
+
+x <- runif(n, min=0, max=1)
+f_x <- exp(-x)
+
+#Average of g(X)
+omega_hat <- mean(f_x)
+
+#compute (b-a)mean(g(X))
+(1-0)*omega_hat
+```
+
+Compute a Monte Carlo Estimate of $\omega = \int_2^4e^{-x}dx$
+
+```{r}
+set.seed(123)
+n<-10000
+
+x <- runif(n, min=2, max=4)
+f_x <- exp(-x)
+
+#Average of g(X)
+omega_hat <- mean(f_x)
+
+#compute (b-a)mean(g(X))
+(4-2)*omega_hat
+```
+
+Estimate $\phi(-1.645) = \int_{-\infty}^{-1.645} \frac{1}{\sqrt(2\pi)}e^{\frac{-t^2}{2}}dt$ using Monte Carlo Method
+
+-   Generating $n$ random samples $X_1,...,X_n$ from a standard normal distribution $N(0,1)$
+
+-   Counting how many samples satisfy $X_i \le -1.645$
+
+-   Computing the proportion:
+
+$$
+\phi(-1.645) = \frac{\# \text{ of } X_i \le -1.645}{n}
+$$
+
+```{r}
+set.seed(123)
+n<-10000
+
+samples <- rnorm(n)
+
+count <- sum(samples <= -1.645)
+
+estimate <- count/n 
+estimate # or estimate <- mean(samples <= -1.645)
+```
+
+# Importance Sampling
+
+Suppose we want to estimate:
+
+$$
+\hat{\mu}=E[g(X)]=\int g(x)f(x)dx,
+$$
+
+where $X \sim f(x)$, and $f(x)$ is the density of $X$. We can rewrite the expectation using another density $h(x)$ (the importance distribution) as long as $h(x) > 0$whenever $h(x)f(x) \ne 0$ (to avoid division by zero):
+
+$$
+\mu=\int h(x)f(x)dx=\int g(x) \frac{f(x)}{h(x)}h(x) dx= E_h[g(x)\frac{f(x)}{h(x)}]
+$$
+
+where the expectation is now taken over $X \sim h(x)$
+
+## Algorithm
+
+The importance sampling estimator is:
+
+1.  Draw $n$ samples $X_1,...,X_n \sim h(x)$
+
+2.  Compute the weights $\omega(X_i) = \frac{f(X_i)}{h(X_i)}$
+
+3.  Estimate $\mu$ as:
+
+$$
+\mu = \frac{1}{n}\sum_{i=1}^{n}g(X_i)\frac{f(X_i)}{h(X_i)}
+$$
+
+## Example
+
+Simulate $\phi(-2) = P(Z \le -2)$ using importance sampling with $h(x) \sim Cauchy(1)$
+
+```{r}
+set.seed(123)
+n<-10000
+
+x <- rcauchy(n)
+
+f <- function(x){
+  return(dnorm(x))
+}
+
+h <- function(x){
+  return(dcauchy(x))
+}
+
+g <- function(x){
+  return(x <= -2)
+}
+
+estimate <- mean(g(x) * (f(x)/h(x)))
+estimate
+```

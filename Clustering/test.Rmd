@@ -1,0 +1,25 @@
+---
+title: "Clustering in R"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(factoextra)
+library(ggplot2)
+library(cluster)
+```
+
+## Optimal Number of Clusters: Gap Statistic
+
+```{r gap-stat}
+# Step 1: Prepare data properly
+data <- USArrests
+data <- na.omit(data)
+data <- scale(data)
+data <- as.data.frame(data)  # Ensure it's a data frame
+
+# Step 2: Use gap_stat method (requires set.seed)
+set.seed(123)
+fviz_nbclust(data, kmeans, method = "gap_stat")
+```

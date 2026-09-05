@@ -1,0 +1,317 @@
+---
+title: "SVM in R"
+author: "Kachun Huang"
+date: "2025-04-22"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# SVM in R
+
+## Import Library
+
+```{r}
+library(tidyverse)
+library(caret)
+library(kernlab)
+library(e1071)
+```
+
+## Step 1: Data Pre-processing
+
+**Feature Scaling (Standardization or Normalization)**
+
+-   SVM is **sensitive to the scale** of features — especially with **RBF**, **polynomial**, and **linear kernels**.
+
+**Handle Categorical Variables**
+
+-   SVM requires **numerical input only**
+
+-   Convert categorical features using:
+
+    -   **One-hot encoding** (preferred)
+
+    -   **Label encoding** (only if the categories have ordinal meaning)
+
+**Remove or Impute Missing Values**
+
+-   SVM does not handle `NA` or `NaN` values.
+
+-   You must either:
+
+    -   Remove rows with missing values
+
+    -   Impute them (mean, median, mode, or model-based imputation)
+
+## Step 2: Model Fitting
+
+```{r eval=FALSE, include=TRUE}
+model <- train(
+  response~.,
+  data = ...,
+  method = "svmLinear",
+  trControl = trainControl("cv", number = 10),
+  preProcess = c("center","scale") #This will scale all the predicator in the model
+)
+```
+
+## Step 3: Prediction
+
+```{r eval=FALSE, include=TRUE}
+predicted.classes <- model %>% predict(test.data)
+```
+
+## Step 4: Confusion Matrix
+
+```{r eval=FALSE, include=TRUE}
+confusionMatrix(
+  factor(predicted.classes),
+  factor(data$response),
+  positive = "1"
+)
+```
+
+## Hyper-parameter Tuning
+
+We can utilize `tuneGrid` and `tuneLength` parameters in `train()` function.
+
+### Tune C parameter
+
+```{r eval=FALSE, include=TRUE}
+model <- train(
+  response~.,
+  data = ...,
+  method = "svmLinear",
+  trControl = trainControl("cv", number = 10),
+  tuneGrid = expand.grid(C = seq(0,2,length = 10))
+)
+```
+
+-   This creates 20 evenly spaced values between `0` and `2`.
+
+-   These are the values of the **regularization parameter `C`** the model will try.
+
+### TuneLength
+
+`caret` will automatically create a grid of  **different `C` values** (on a log scale by default), and test them via cross-validation.
+
+```{r eval=FALSE, include=TRUE}
+model <- train(
+  response~.,
+  data = ...,
+  method = "svmLinear",
+  trControl = trainControl("cv", number = 10),
+  tuneLength = n
+)
+```
+
+# Example
+
+## Import Data
+
+```{r}
+data <- read.csv("Titanic.csv")
+```
+
+## Data Pre-Processing
+
+### Remove Columns
+
+```{r}
+data <- subset(
+   data,
+   select = -c(PassengerId,Name,Ticket,Cabin)
+)
+```
+
+### Remove Missing Value in Age Column
+
+```{r}
+data <- subset(data, is.na(Age) == FALSE)
+```
+
+### Factorize Categorical Variable
+
+```{r}
+data$Pclass <- as.factor(data$Pclass)
+data$Survived <- as.factor(data$Survived)
+```
+
+### Standardize Numeric Column
+
+```{r}
+data$Age <- scale(data$Age)
+data$Fare <- scale(data$Fare)
+```
+
+### Data Splitting
+
+```{r}
+set.seed(123)
+training.samples <- data$Survived %>%
+createDataPartition(p = 0.75, list = FALSE)
+train.data <- data[training.samples, ]
+test.data <- data[-training.samples, ]
+str(train.data) 
+```
+
+```{r}
+str(test.data)
+```
+
+## Model Fitting
+
+```{r}
+set.seed(123)
+model <- train(
+  Survived ~., data = train.data, method = "svmLinear",
+  trControl = trainControl("cv", number = 10),
+  # preProcess = c("center","scale")
+  # This will scale all the predictors in the model
+)
+```
+
+### Prediction
+
+```{r}
+predicted.classes <- model %>% predict(test.data)
+```
+
+### Confusion Matrix
+
+```{r}
+confusionMatrix(
+  factor(predicted.classes), 
+  factor(test.data$Survived), 
+  positive = '1'
+)
+```
+
+## Hyper-parameter Tuning
+
+### with tuneGrid = expand.grid(C = seq(0, 2, length = 20))
+
+```{r}
+set.seed(123)
+model <- train(
+  Survived ~., data = train.data, method = "svmLinear",
+  trControl = trainControl("cv", number = 10),
+  # preProcess = c("center","scale")
+  # This will scale all the predictors in the model
+  tuneGrid = expand.grid(C = seq(0, 2, length = 20))
+)
+```
+
+#### Plot
+
+```{r}
+plot(model)
+```
+
+#### Best Tune
+
+```{r}
+model$bestTune
+```
+
+Here you can directly use the fitted model or you can refit a model using the best tuning parameter.
+
+#### Model with best Tune
+
+```{r}
+set.seed(123)
+model <- train(
+  Survived ~., data = train.data, method = "svmLinear",
+  trControl = trainControl("cv", number = 10),
+  tuneGrid = expand.grid(C = model$bestTune)
+)
+
+predicted.classes <- model %>% predict(test.data)
+
+confusionMatrix(factor(predicted.classes), factor(test.data$Survived), positive = '1')
+```
+
+### With TuneLength = 10, radial basis kernel
+
+```{r}
+set.seed(123)
+model <- train(
+  Survived ~., 
+  data = train.data, 
+  method = "svmRadial",
+  trControl = trainControl("cv", number = 10),
+  # preProcess = c("center","scale")
+  # This will scale all the predictors in the model
+  tuneLength = 10
+)
+```
+
+#### Best Tune
+
+```{r}
+model$bestTune
+```
+
+#### Prediction
+
+```{r}
+predicted.classes <- model %>% predict(test.data)
+```
+
+#### Confusion Matrix
+
+```{r}
+confusionMatrix(
+  factor(predicted.classes), 
+  factor(test.data$Survived), 
+  positive = '1'
+)
+```
+
+### TuneLength = 4, polynomial basis kernel
+
+```{r}
+set.seed(123)
+model <- train(
+  Survived ~., 
+  data = train.data, 
+  method = "svmPoly",
+  trControl = trainControl("cv", number = 10),
+  # preProcess = c("center","scale")
+  # This will scale all the predictors in the model
+  tuneLength = 4
+)
+```
+
+#### Best Tune
+
+```{r}
+model$bestTune
+```
+
+#### Prediction
+
+```{r}
+predicted.classes <- model %>% predict(test.data)
+```
+
+#### Confusion Matrix
+
+```{r}
+confusionMatrix(
+  factor(predicted.classes), 
+  factor(test.data$Survived), 
+  positive = '1'
+)
+```
+
+# Result
+
+\
+**Overall accuracy rate:**\
+Linear: 0.7978\
+Radial basis kernel: 0.8146 (the best)\
+Polynomial kernel: 0.809

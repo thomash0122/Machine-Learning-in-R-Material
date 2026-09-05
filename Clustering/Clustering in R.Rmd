@@ -1,0 +1,241 @@
+---
+title: "Clustering in R"
+author: "Kachun Huang"
+date: "2025-04-21"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Clustering in R
+
+This tutorial introduces three common clustering methods in R: **Hierarchical Clustering**, **K-means Clustering**, and **Fuzzy C-Means Clustering**, using the `USArrests` dataset. It follows a standard structure: **load libraries → learn syntax → run examples**.
+
+## Load Required Libraries
+
+```{r load-libs, message=FALSE, warning=FALSE}
+# Core clustering and plotting libraries
+library(stats)    
+library(cluster)
+library(factoextra)
+library(ggplot2)  
+```
+
+## Basic Syntax & Functions
+
+### Distance Matrix for Hierarchical Clustering
+
+```{r eval=FALSE, include=TRUE}
+d <- dist(data)
+```
+
+-   Computes pairwise **Euclidean distance** between observations
+
+### Hierarchical Clustering
+
+```{r eval=FALSE, include=TRUE}
+hc <- hclust(d, method = "ward.D2")
+```
+
+Performs agglomerative clustering using:
+
+-   `"ward.D2"` – squared distances
+
+    -   other linkage strategies
+
+        -   `ward.D` -Ward’s minimum variance method (classic version)
+
+        -   `single` -Minimum (single) linkage
+
+        -   `complete` -Maximum (complete) linkage
+
+        -   `average` -Average linkage (UPGMA)
+
+        -   `centroid` -Centroid linkage (UPGMC)
+
+#### Plot Dendrogram
+
+```{r eval=FALSE, include=TRUE}
+# Dendrogram
+plot(hc)
+
+# Add rectangles for k clusters
+rect.hclust(hc)
+```
+
+or
+
+```{r eval=FALSE, include=TRUE}
+# dendrogram from factoextra
+fviz_dend(
+  hc, 
+  k = 4, # num of clusters
+)
+```
+
+### K-means Clustering
+
+#### Optimal Number of clusters
+
+```{r eval=FALSE, include=TRUE}
+fviz_nbclust(
+  data, 
+  kmeans, 
+  method = "gap_stat"
+)
+```
+
+Choose the k that maximizes the Gap statistic
+
+```{r eval=FALSE, include=TRUE}
+km.res <- kmeans(data, centers = 2, nstart = 25)
+```
+
+-   `centers`: number of clusters
+
+-   `nstart`: number of initial random configurations
+
+#### Plot Clusters
+
+```{r eval=FALSE, include=TRUE}
+fviz_cluster(km.res, 
+             data = data,
+             ellipse.type = "convex",
+             palette = "jco",
+             ggtheme = theme_minimal()
+)
+```
+
+| Argument | Description |
+|----|----|
+| `fviz_cluster()` | Main function to **plot clustering results** from `kmeans()`, `hclust()`, or `fanny()` |
+| `km.res` | The result object from `kmeans()` — contains cluster assignments and centroids |
+| `data = data` | The dataset that was clustered — used to calculate PCA for plotting |
+| `ellipse.type = "convex"` | Draws **convex hulls** around each cluster to highlight boundaries (other options: `"norm"`, `"t"` for confidence ellipses) |
+| `palette = "jco"` | Uses the **"jco" color palette** (from Journal of Clinical Oncology style) for clusters |
+| `ggtheme = theme_minimal()` | Applies a **clean and minimal ggplot2 theme** to the plot for aesthetics |
+
+### Fuzzy C-Means Clustering
+
+K-means: Each point belongs to exactly one cluster (0/1)
+
+Fuzzy C-Means: Each point belongs to all clusters to a degree (between 0 and 1)
+
+```{r eval=FALSE, include=TRUE}
+res.fanny <- fanny(data, 2)
+```
+
+-   Allows **soft membership** (each point belongs to multiple clusters with probabilities)
+
+#### Plot Clusters
+
+```{r eval=FALSE, include=TRUE}
+fviz_cluster(
+  res.fanny, 
+  ellipse.type = "norm", 
+  repel = TRUE,
+  palette = "jco", 
+  ggtheme = theme_minimal(),
+  legend = "right"
+)
+```
+
+| Argument | Description |
+|----|----|
+| `fviz_cluster()` | Visualizes the clustering result, in this case from a fuzzy clustering object (`res.fanny`) |
+| `res.fanny` | Clustering result from `fanny()`, which includes **soft memberships** for each point |
+| `ellipse.type = "norm"` | Draws **normal confidence ellipses** (assuming multivariate normal distribution of points) around each cluster |
+| `repel = TRUE` | Prevents **text labels from overlapping** by repelling them slightly apart for readability |
+| `palette = "jco"` | Uses the **"Journal of Clinical Oncology" (jco)** color palette for cluster coloring |
+| `ggtheme = theme_minimal()` | Applies a **clean ggplot2 theme** with minimal gridlines and distractions |
+| `legend = "right"` | Places the **cluster legend** on the right side of the plot for clarity |
+
+# Example
+
+## Import Data
+
+```{r}
+data <- USArrests
+data <- na.omit(data)
+data <- scale(data)
+data <- as.data.frame(data)  # Ensure it's a data frame
+```
+
+## Hierarchical Clustering
+
+### Distance Matrix for Hierarchical Clustering
+
+```{r}
+d <- dist(data)
+```
+
+### Hierarchical Clustering
+
+```{r}
+hc <- hclust(d, method = "ward.D2")
+```
+
+### Plot
+
+```{r}
+plot(hc, main = "Hierarchical Clustering Dendrogram")
+
+rect.hclust(hc, k = 4, border = "red")
+```
+
+or
+
+```{r}
+fviz_dend(
+  hc,
+  k = 4,
+  cex = 0.5, # Label size
+  k_colors = c("#2E9FDF", "#00AFBB", "#E7B800", "#D8D900"),
+  color_labels_by_k = TRUE, # Color labels by cluster
+  rect = TRUE # Draw rectangles around clusters
+)
+```
+
+## K-means Clustering
+
+### Optimal Number of clusters
+
+```{r}
+fviz_nbclust(data, kmeans, method = "gap_stat") 
+```
+
+### K-means Clustering
+
+```{r}
+km.res <- kmeans(data, centers = 2, nstart = 25)
+```
+
+### Plot
+
+```{r}
+fviz_cluster(km.res, 
+             data = data,
+             ellipse.type = "convex",
+             palette = "jco",
+             ggtheme = theme_minimal()
+)
+```
+
+## Fuzzy C-means Clustering
+
+### Fitting model and Plot
+
+```{r}
+res.fanny <- fanny(data, 2)
+
+fviz_cluster(
+  res.fanny, 
+  ellipse.type = "norm", 
+  repel = TRUE,
+  palette = "jco", 
+  ggtheme = theme_minimal(),
+  legend = "right"
+)
+```

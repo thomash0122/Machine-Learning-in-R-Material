@@ -1,0 +1,323 @@
+---
+title: "Multi-Colinearity"
+author: "Kachun Huang"
+date: "2025-04-09"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Import Library
+
+```{r}
+library(corrplot)
+library(car)
+library(tidyverse)
+library(caret)
+library(glmnet)
+```
+
+## Load Data
+
+```{r}
+data <- read.csv("/Users/thomashuang/Downloads/data_factorize_notScaled.csv") 
+```
+
+```{r}
+str(data)
+```
+
+## Exclude Index Column
+
+```{r}
+data <- subset(data, select = -c(X))
+```
+
+## Convert Column Type
+
+```{r}
+# Define the column names as a character vector
+numeric_cols <- c("age", "bp", "bgr", "bu", "sc", "sod", "pot", "hemo", "pcv", "wbcc", "rbcc")
+
+# Convert each column to numeric
+for (col in numeric_cols) {
+  data[[col]] <- as.numeric(data[[col]])
+}
+
+# Define the column names as a character vector
+categorical_cols <- c("sg", "al", "su", "rbc", "pc", "pcc", "ba", "htn", "dm", "cad", "appet", "pe", "ane", "class")
+
+# Convert each column to factor
+for (col in categorical_cols) {
+  data[[col]] <- as.factor(data[[col]])
+}
+```
+
+```{r}
+str(data)
+```
+
+# Correlation Analysis
+
+## Correlation Matrix
+
+```{r}
+cor_matrix<-cor(
+  subset(data, select = -c(sg, al, su, rbc, pc, pcc, ba, htn, dm, cad, appet, pe, ane, class))
+)
+cor_matrix
+```
+
+## Heat Map
+
+```{r}
+corrplot(cor_matrix, method = "color", addCoef.col = "black", # Add values in black
+         tl.col = "black", tl.srt = 45, # Tilted labels
+         diag = FALSE, # Hide diagonal if desired
+         number.cex = 0.7 # Adjust text size
+) 
+```
+
+-   pcv vs. hemo **0.9**
+
+-   hemo vs. rbcc **0.8**
+
+-   rbcc vs. pcv **0.79**
+
+These 3 combo all have really high correlation.
+
+## Explain
+
+Scientifically speaking, they are all directly related to each other.
+
+-   pcv vs. hemo
+
+    -   The more red blood cells you have (i.e. higher PCV), the more hemoglobin you’re likely to have — they rise and fall together.
+
+-   hemo vs. rbcc
+
+    -   More red blood cells, more hemoglobin total (assuming each cell has roughly the same amount).\
+        Again.
+
+-   rbcc vs. pcv
+
+    -   Higher RBC count means a greater proportion of blood is occupied by these cells, higher PCV.
+
+These values suggest moderate multicollinearity between PCV and hemoglobin.
+
+# Penalized Regression
+
+## Prepare Data
+
+```{r}
+# Prepare data
+X <- model.matrix(~ . - 1, data = data %>% subset(select = -class))
+y <- data$class
+# Split into training and test sets
+set.seed(597)
+training.samples <- y %>% createDataPartition(p = 0.7, list = FALSE)
+X_train <- X[training.samples, ]
+X_test <- X[-training.samples, ]
+y_train <- y[training.samples]
+y_test <- y[-training.samples]
+train.data <- data[training.samples,]
+test.data <- data[-training.samples,]
+```
+
+## Ridge Regression
+
+```{r}
+cv_ridge <- cv.glmnet(
+  x = X_train,
+  y = y_train,
+  family = "binomial",
+  alpha = 0,          # Ridge regression
+  nfolds = 10,        # 10-fold cross-validation
+  type.measure = "class"  # Use misclassification error
+)
+```
+
+### CV plot
+
+```{r}
+plot(cv_ridge)
+```
+
+### Best Lambda
+
+```{r}
+best_lambda <- cv_ridge$lambda.min
+cat("Optimal lambda:", best_lambda, "\n")
+```
+
+### Model with best lambda
+
+```{r}
+ridge_model <- glmnet(
+  x = X_train,
+  y = y_train,
+  family = "binomial",
+  alpha = 0,
+  lambda = best_lambda
+)
+```
+
+```{r}
+coef(ridge_model)
+```
+
+### Prediction
+
+```{r}
+pred_prob <- predict(ridge_model, 
+                    newx = X_test, 
+                    type = "response")
+pred_class <- ifelse(pred_prob > 0.5, 1, 0)
+```
+
+### Confusion Matrix
+
+```{r}
+cm_ridge <- confusionMatrix(factor(pred_class), y_test, positive = "1")
+print(cm_ridge)
+```
+
+## Lasso
+
+```{r}
+cv_lasso <- cv.glmnet(
+  x = X_train,
+  y = y_train,
+  family = "binomial",
+  alpha = 1,          # Lasso regression
+  nfolds = 10,        # 10-fold cross-validation
+  type.measure = "class"  # Use misclassification error
+)
+```
+
+### CV plot
+
+```{r}
+plot(cv_lasso)
+```
+
+### Best Lambda
+
+```{r}
+best_lambda <- cv_lasso$lambda.min
+cat("Optimal lambda:", best_lambda, "\n")
+```
+
+### Model with best lambda
+
+```{r}
+lasso_model <- glmnet(
+  x = X_train,
+  y = y_train,
+  family = "binomial",
+  alpha = 1,
+  lambda = best_lambda
+)
+```
+
+```{r}
+coef(lasso_model)
+```
+
+### Prediction
+
+```{r}
+pred_prob <- predict(lasso_model, 
+                    newx = X_test, 
+                    type = "response")
+pred_class <- ifelse(pred_prob > 0.5, 1, 0)
+```
+
+### Confusion Matrix
+
+```{r}
+cm_lasso <- confusionMatrix(factor(pred_class), y_test, positive = "1")
+print(cm_lasso)
+```
+
+## Elastic Net
+
+```{r}
+# Define cross-validation control
+ctrl <- trainControl(
+  method = "cv",          # Cross-validation
+  number = 10,            # 10 folds
+  classProbs = TRUE,      # For probability predictions
+  summaryFunction = twoClassSummary,  # For ROC/AUC metrics
+  verboseIter = TRUE      # Show progress
+)
+
+# response need to be name
+train.data$class <- ifelse(train.data$class == "1","ckd","notckd")
+
+set.seed(123)  # For reproducibility
+model <- train(
+  class~.,              # Predict class using all predictors
+  data = train.data,
+  method = "glmnet",
+  trControl = ctrl,
+  metric = "ROC"          # Optimize for AUC
+)
+```
+
+### Best Tune
+
+```{r}
+model$bestTune
+```
+
+### Model with bestTune
+
+```{r}
+model_en <- glmnet(
+  x = X_train,
+  y = y_train,
+  alpha=model$bestTune$alpha,
+  lambda=model$bestTune$lambda,
+  family = "binomial"
+)
+```
+
+```{r}
+coef(model_en)
+```
+
+### Prediction
+
+```{r}
+pred_prob <- predict(model_en, 
+                    newx = X_test, 
+                    type = "response")
+pred_class <- ifelse(pred_prob > 0.5, 1, 0)
+```
+
+### Confusion Matrix
+
+```{r}
+cm_en <- confusionMatrix(factor(pred_class), y_test, positive = "1")
+print(cm_en)
+```
+
+# Dimensionality Reduction
+
+## PCA
+
+```{r}
+
+# Step 2: Perform PCA
+pca_result <- prcomp(data, center = TRUE, scale. = TRUE)
+
+# Step 3: Explore results
+# Summary of PCA (proportion of variance explained)
+summary(pca_result)
+
+# Scree plot to visualize variance explained by each component
+#plot(pca_result, type = "lines", main = "Scree Plot")
+```

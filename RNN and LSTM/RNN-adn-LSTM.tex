@@ -1,0 +1,1205 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={RNN and LSTM},
+  pdfauthor={Kachun Huang},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{RNN and LSTM}
+\author{Kachun Huang}
+\date{2025-04-29}
+
+\begin{document}
+\maketitle
+
+\section{RNN and LSTM}\label{rnn-and-lstm}
+
+\subsection{Import Library}\label{import-library}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(keras)}
+\FunctionTok{library}\NormalTok{(tensorflow)}
+\FunctionTok{library}\NormalTok{(reticulate)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'reticulate' was built under R version 4.3.3
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(tidyverse)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'purrr' was built under R version 4.3.3
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: package 'lubridate' was built under R version 4.3.3
+\end{verbatim}
+
+\begin{verbatim}
+## -- Attaching core tidyverse packages ------------------------ tidyverse 2.0.0 --
+## v dplyr     1.1.4     v readr     2.1.5
+## v forcats   1.0.0     v stringr   1.5.1
+## v ggplot2   3.5.1     v tibble    3.2.1
+## v lubridate 1.9.4     v tidyr     1.3.1
+## v purrr     1.0.4     
+## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()
+## i Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(tidyquant)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'tidyquant' was built under R version 4.3.3
+\end{verbatim}
+
+\begin{verbatim}
+## Registered S3 method overwritten by 'quantmod':
+##   method            from
+##   as.zoo.data.frame zoo
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: package 'xts' was built under R version 4.3.3
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: package 'zoo' was built under R version 4.3.3
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: package 'quantmod' was built under R version 4.3.3
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: package 'TTR' was built under R version 4.3.3
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: package 'PerformanceAnalytics' was built under R version 4.3.3
+\end{verbatim}
+
+\begin{verbatim}
+## -- Attaching core tidyquant packages ----------------------- tidyquant 1.0.11 --
+## v PerformanceAnalytics 2.0.8      v TTR                  0.24.4
+## v quantmod             0.4.27     v xts                  0.14.1
+## -- Conflicts ------------------------------------------ tidyquant_conflicts() --
+## x zoo::as.Date()                 masks base::as.Date()
+## x zoo::as.Date.numeric()         masks base::as.Date.numeric()
+## x dplyr::filter()                masks stats::filter()
+## x xts::first()                   masks dplyr::first()
+## x dplyr::lag()                   masks stats::lag()
+## x xts::last()                    masks dplyr::last()
+## x PerformanceAnalytics::legend() masks graphics::legend()
+## x quantmod::summary()            masks base::summary()
+## i Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(zoo)}
+\FunctionTok{library}\NormalTok{(caret)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'caret' was built under R version 4.3.3
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: lattice
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: package 'lattice' was built under R version 4.3.3
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'caret'
+## 
+## The following object is masked from 'package:purrr':
+## 
+##     lift
+## 
+## The following object is masked from 'package:tensorflow':
+## 
+##     train
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(tidyquant)}
+\FunctionTok{library}\NormalTok{(magrittr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Attaching package: 'magrittr'
+## 
+## The following object is masked from 'package:purrr':
+## 
+##     set_names
+## 
+## The following object is masked from 'package:tidyr':
+## 
+##     extract
+\end{verbatim}
+
+\subsection{Data Pre-processing}\label{data-pre-processing}
+
+Before building models, raw data often requires transformation. Common
+pre-processing steps include:
+
+\subsubsection{\texorpdfstring{\textbf{Normalization}}{Normalization}}\label{normalization}
+
+To stabilize model learning, normalize features such as stock prices
+using min-max scaling:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{min\_lagged }\OtherTok{\textless{}{-}} \FunctionTok{lag}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{Low)}
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{max\_lagged }\OtherTok{\textless{}{-}} \FunctionTok{lag}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{High)}
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{Close\_norm }\OtherTok{\textless{}{-}}\NormalTok{ (data}\SpecialCharTok{$}\NormalTok{Close }\SpecialCharTok{{-}}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{min\_lagged) }\SpecialCharTok{/}\NormalTok{ (data}\SpecialCharTok{$}\NormalTok{max\_lagged }\SpecialCharTok{{-}}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{min\_lagged)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{\texorpdfstring{\textbf{Handling Missing
+Values}}{Handling Missing Values}}\label{handling-missing-values}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{data }\OtherTok{\textless{}{-}} \FunctionTok{na.omit}\NormalTok{(data)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Date Conversion
+(Optional)}\label{date-conversion-optional}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{Date }\OtherTok{\textless{}{-}} \FunctionTok{as.Date}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{Date)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Train-Test Splitting}\label{train-test-splitting}
+
+Split your data into training and test sets to evaluate your model's
+generalization performance:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{split\_index }\OtherTok{\textless{}{-}} \FunctionTok{floor}\NormalTok{(}\FloatTok{0.9} \SpecialCharTok{*} \FunctionTok{length}\NormalTok{(series))}
+\NormalTok{train\_data }\OtherTok{\textless{}{-}}\NormalTok{ series[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{split\_index]}
+\NormalTok{test\_data }\OtherTok{\textless{}{-}}\NormalTok{ series[(split\_index }\SpecialCharTok{+} \DecValTok{1}\NormalTok{)}\SpecialCharTok{:}\FunctionTok{length}\NormalTok{(series)]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{itemize}
+\item
+  \texttt{length(series)}~returns the total number of time steps in your
+  dataset.
+\item
+  \texttt{floor(0.9\ *\ length(series))}~calculates an index at 90\% of
+  the data.
+\item
+  \texttt{train\_data}~selects the first 90\% as the training set.
+\item
+  \texttt{test\_data}~selects the remaining 10\% as the test set.
+\end{itemize}
+
+\subsubsection{Creating Time Series
+Datasets}\label{creating-time-series-datasets}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{create\_dataset }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(series, }\AttributeTok{timesteps =} \DecValTok{10}\NormalTok{) \{}
+\NormalTok{  x }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{()}
+\NormalTok{  y }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{()}
+  \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{(}\FunctionTok{length}\NormalTok{(series) }\SpecialCharTok{{-}}\NormalTok{ timesteps)) \{}
+\NormalTok{    x[[i]] }\OtherTok{\textless{}{-}}\NormalTok{ series[i}\SpecialCharTok{:}\NormalTok{(i }\SpecialCharTok{+}\NormalTok{ timesteps }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{)]}
+\NormalTok{    y }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(y, series[i }\SpecialCharTok{+}\NormalTok{ timesteps])}
+\NormalTok{  \}}
+\NormalTok{  x\_array }\OtherTok{\textless{}{-}} \FunctionTok{do.call}\NormalTok{(rbind, x)}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\AttributeTok{x =}\NormalTok{ x\_array, }\AttributeTok{y =}\NormalTok{ y))}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+This prepares the data in a format compatible with RNNs and LSTMs.
+
+Then apply the~\texttt{create\_dataset()}~function:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{train\_set }\OtherTok{\textless{}{-}} \FunctionTok{create\_dataset}\NormalTok{(train\_data, timesteps)}
+\NormalTok{test\_set }\OtherTok{\textless{}{-}} \FunctionTok{create\_dataset}\NormalTok{(test\_data, timesteps)}
+\end{Highlighting}
+\end{Shaded}
+
+Then split \texttt{train\_set} to \texttt{x\_train}, \texttt{y\_train}
+and convert it to tensor
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#convert to array}
+\NormalTok{x\_train\_array }\OtherTok{\textless{}{-}} \FunctionTok{array}\NormalTok{(}\FunctionTok{as.numeric}\NormalTok{(train\_set}\SpecialCharTok{$}\NormalTok{x), }\AttributeTok{dim =} \FunctionTok{c}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(train\_set}\SpecialCharTok{$}\NormalTok{x), timesteps, }\DecValTok{1}\NormalTok{))}
+\NormalTok{y\_train\_array }\OtherTok{\textless{}{-}} \FunctionTok{as.numeric}\NormalTok{(train\_set}\SpecialCharTok{$}\NormalTok{y)}
+
+\CommentTok{\# Convert to TensorFlow tensors}
+\NormalTok{x\_train }\OtherTok{\textless{}{-}}\NormalTok{ tf}\SpecialCharTok{$}\FunctionTok{convert\_to\_tensor}\NormalTok{(x\_train\_array, }\AttributeTok{dtype =} \StringTok{"float32"}\NormalTok{)}
+\NormalTok{y\_train }\OtherTok{\textless{}{-}}\NormalTok{ tf}\SpecialCharTok{$}\FunctionTok{convert\_to\_tensor}\NormalTok{(y\_train\_array, }\AttributeTok{dtype =} \StringTok{"float32"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{RNN Model Building}\label{rnn-model-building}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{input\_rnn }\OtherTok{\textless{}{-}} \FunctionTok{layer\_input}\NormalTok{(}\AttributeTok{shape =} \FunctionTok{c}\NormalTok{(timesteps, }\DecValTok{1}\NormalTok{))}
+
+\NormalTok{output\_rnn }\OtherTok{\textless{}{-}}\NormalTok{ input\_rnn }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{layer\_simple\_rnn}\NormalTok{(}\AttributeTok{units =} \DecValTok{32}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{layer\_dense}\NormalTok{(}\AttributeTok{units =} \DecValTok{1}\NormalTok{)}
+
+\NormalTok{model\_rnn }\OtherTok{\textless{}{-}} \FunctionTok{keras\_model}\NormalTok{(}\AttributeTok{inputs =}\NormalTok{ input\_rnn, }\AttributeTok{outputs =}\NormalTok{ output\_rnn)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{LSTM Model Building}\label{lstm-model-building}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{input\_lstm }\OtherTok{\textless{}{-}} \FunctionTok{layer\_input}\NormalTok{(}\AttributeTok{shape =} \FunctionTok{c}\NormalTok{(timesteps, }\DecValTok{1}\NormalTok{))}
+
+\NormalTok{output\_lstm }\OtherTok{\textless{}{-}}\NormalTok{ input\_lstm }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{layer\_lstm}\NormalTok{(}\AttributeTok{units =} \DecValTok{32}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{layer\_dense}\NormalTok{(}\AttributeTok{units =} \DecValTok{1}\NormalTok{)}
+
+\NormalTok{model\_lstm }\OtherTok{\textless{}{-}} \FunctionTok{keras\_model}\NormalTok{(}\AttributeTok{inputs =}\NormalTok{ input\_lstm, }\AttributeTok{outputs =}\NormalTok{ output\_lstm)}
+\end{Highlighting}
+\end{Shaded}
+
+These models can be used for sequence-to-one prediction problems.
+
+\subsection{\texorpdfstring{\textbf{Compilation and
+Training}}{Compilation and Training}}\label{compilation-and-training}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{model}\SpecialCharTok{$}\FunctionTok{compile}\NormalTok{(}
+  \AttributeTok{optimizer =} \FunctionTok{optimizer\_adam}\NormalTok{(),}
+  \AttributeTok{loss =} \StringTok{"mean\_squared\_error"}
+\NormalTok{)}
+
+\NormalTok{history }\OtherTok{\textless{}{-}}\NormalTok{ model}\SpecialCharTok{$}\FunctionTok{fit}\NormalTok{(}
+  \AttributeTok{x =}\NormalTok{ x\_train,}
+  \AttributeTok{y =}\NormalTok{ y\_train,}
+  \AttributeTok{epochs =} \FunctionTok{r\_to\_py}\NormalTok{(}\DecValTok{100}\DataTypeTok{L}\NormalTok{),}
+  \AttributeTok{batch\_size =} \FunctionTok{r\_to\_py}\NormalTok{(}\DecValTok{16}\DataTypeTok{L}\NormalTok{),}
+  \AttributeTok{verbose =} \DecValTok{0}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\texttt{r\_to\_py()}~ensures integers are converted correctly for
+Python-based TensorFlow backend.
+
+\subsection{Prediction}\label{prediction}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{predict\_next }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(model, input\_seq\_array, }\AttributeTok{n\_steps =} \DecValTok{10}\NormalTok{) \{}
+\NormalTok{  preds }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{() }\CommentTok{\# empty vector to store prediction}
+\NormalTok{  current\_input }\OtherTok{\textless{}{-}}\NormalTok{ input\_seq\_array }
+  \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{n\_steps) \{}
+\NormalTok{    pred }\OtherTok{\textless{}{-}}\NormalTok{ model}\SpecialCharTok{$}\FunctionTok{predict}\NormalTok{(current\_input)}
+\NormalTok{    preds }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(preds, }\FunctionTok{as.numeric}\NormalTok{(pred))}
+\NormalTok{    updated\_seq }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{as.numeric}\NormalTok{(current\_input)[}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{], }\FunctionTok{as.numeric}\NormalTok{(pred))}
+\NormalTok{    current\_input }\OtherTok{\textless{}{-}} \FunctionTok{array}\NormalTok{(updated\_seq, }\AttributeTok{dim =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, timesteps, }\DecValTok{1}\NormalTok{))}
+\NormalTok{    current\_input }\OtherTok{\textless{}{-}}\NormalTok{ tf}\SpecialCharTok{$}\FunctionTok{convert\_to\_tensor}\NormalTok{(current\_input, }\AttributeTok{dtype =} \StringTok{"float32"}\NormalTok{)}
+\NormalTok{  \}}
+  \FunctionTok{return}\NormalTok{(preds)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+This function generates~\texttt{n\_steps}~future predictions based on a
+rolling window.
+
+\subsubsection{Rescaling Predictions}\label{rescaling-predictions}
+
+If you used normalization, reverse it using the original min and max
+values:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{rescaled\_value }\OtherTok{\textless{}{-}}\NormalTok{ norm\_value }\SpecialCharTok{*}\NormalTok{ (original\_max }\SpecialCharTok{{-}}\NormalTok{ original\_min) }\SpecialCharTok{+}\NormalTok{ original\_min}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Model Performance}\label{model-performance}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{mse }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{((predicted }\SpecialCharTok{{-}}\NormalTok{ actual)}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Visualizing Predictions}\label{visualizing-predictions}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\FunctionTok{length}\NormalTok{(actual), actual, }\AttributeTok{type =} \StringTok{\textquotesingle{}l\textquotesingle{}}\NormalTok{, }\AttributeTok{col =} \StringTok{\textquotesingle{}black\textquotesingle{}}\NormalTok{)}
+\FunctionTok{lines}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\FunctionTok{length}\NormalTok{(predicted), predicted, }\AttributeTok{col =} \StringTok{\textquotesingle{}red\textquotesingle{}}\NormalTok{)}
+\FunctionTok{legend}\NormalTok{(}\StringTok{"topright"}\NormalTok{, }\AttributeTok{legend =} \FunctionTok{c}\NormalTok{(}\StringTok{"Actual"}\NormalTok{, }\StringTok{"Predicted"}\NormalTok{), }\AttributeTok{col =} \FunctionTok{c}\NormalTok{(}\StringTok{"black"}\NormalTok{, }\StringTok{"red"}\NormalTok{), }\AttributeTok{lwd =} \DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\section{Example: sin Curve}\label{example-sin-curve}
+
+Generate a sine wave with the function sin(x) for x ranging from 0 to
+20, resulting in a total of 400 points. Plot the generated sequence.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{123}\NormalTok{) }\CommentTok{\# set seed}
+
+\NormalTok{data }\OtherTok{\textless{}{-}} \FunctionTok{sin}\NormalTok{(}\FunctionTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{20}\NormalTok{, }\AttributeTok{length.out =} \DecValTok{400}\NormalTok{)) }\CommentTok{\# create sin data point}
+
+\CommentTok{\# Visualize the sine wave}
+\FunctionTok{plot}\NormalTok{(}
+  \FunctionTok{as.vector}\NormalTok{(data), }
+  \AttributeTok{col =} \StringTok{\textquotesingle{}blue\textquotesingle{}}\NormalTok{, }
+  \AttributeTok{type =} \StringTok{\textquotesingle{}l\textquotesingle{}}\NormalTok{, }
+  \AttributeTok{ylab =} \StringTok{"Value"}\NormalTok{, }
+  \AttributeTok{main =}\StringTok{"Sine Wave"}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{RNN-adn-LSTM_files/figure-latex/unnamed-chunk-16-1.pdf}
+
+Divide the cleaned dataset into two parts, the \textbf{last 10 points
+for testing y} and \textbf{the rest for training}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{length}\NormalTok{(data)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 400
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{train\_data }\OtherTok{\textless{}{-}}\NormalTok{ data[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{(}\FunctionTok{length}\NormalTok{(data)}\SpecialCharTok{{-}}\DecValTok{10}\NormalTok{)]}
+\NormalTok{test\_data }\OtherTok{\textless{}{-}}\NormalTok{ data[(}\FunctionTok{length}\NormalTok{(data)}\SpecialCharTok{{-}}\DecValTok{9}\NormalTok{)}\SpecialCharTok{:}\FunctionTok{length}\NormalTok{(data)]}
+\end{Highlighting}
+\end{Shaded}
+
+prepares the data in a format compatible with RNNs and LSTMs.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{create\_dataset }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(series, }\AttributeTok{timesteps =} \DecValTok{10}\NormalTok{) \{}
+\NormalTok{  x }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{()}
+\NormalTok{  y }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{()}
+  \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{(}\FunctionTok{length}\NormalTok{(series) }\SpecialCharTok{{-}}\NormalTok{ timesteps)) \{}
+\NormalTok{    x[[i]] }\OtherTok{\textless{}{-}}\NormalTok{ series[i}\SpecialCharTok{:}\NormalTok{(i }\SpecialCharTok{+}\NormalTok{ timesteps }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{)]}
+\NormalTok{    y }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(y, series[i }\SpecialCharTok{+}\NormalTok{ timesteps])}
+\NormalTok{  \}}
+\NormalTok{  x\_array }\OtherTok{\textless{}{-}} \FunctionTok{do.call}\NormalTok{(rbind, x)}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\AttributeTok{x =}\NormalTok{ x\_array, }\AttributeTok{y =}\NormalTok{ y))}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+Create Training Set
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{timesteps }\OtherTok{\textless{}{-}} \DecValTok{10}
+\NormalTok{train\_set }\OtherTok{\textless{}{-}} \FunctionTok{create\_dataset}\NormalTok{(train\_data, timesteps)}
+\end{Highlighting}
+\end{Shaded}
+
+Convert to Tensor
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#convert to array}
+\NormalTok{x\_train\_array }\OtherTok{\textless{}{-}} \FunctionTok{array}\NormalTok{(}\FunctionTok{as.numeric}\NormalTok{(train\_set}\SpecialCharTok{$}\NormalTok{x), }\AttributeTok{dim =} \FunctionTok{c}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(train\_set}\SpecialCharTok{$}\NormalTok{x), timesteps, }\DecValTok{1}\NormalTok{))}
+\NormalTok{y\_train\_array }\OtherTok{\textless{}{-}} \FunctionTok{as.numeric}\NormalTok{(train\_set}\SpecialCharTok{$}\NormalTok{y)}
+
+\CommentTok{\# Convert to TensorFlow tensors}
+\NormalTok{x\_train }\OtherTok{\textless{}{-}}\NormalTok{ tf}\SpecialCharTok{$}\FunctionTok{convert\_to\_tensor}\NormalTok{(x\_train\_array, }\AttributeTok{dtype =} \StringTok{"float32"}\NormalTok{)}
+\NormalTok{y\_train }\OtherTok{\textless{}{-}}\NormalTok{ tf}\SpecialCharTok{$}\FunctionTok{convert\_to\_tensor}\NormalTok{(y\_train\_array, }\AttributeTok{dtype =} \StringTok{"float32"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Please first build RNN with length of sequence 10 using the training
+data and the RNN method\\
+with only one RNN layer with 32 hidden units, and the loss function of
+`mse'. You will need to\\
+create sequences that the RNN can use to learn the pattern. Each input
+sequence should use 10\\
+sequential points to predict the next point.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{input\_rnn }\OtherTok{\textless{}{-}} \FunctionTok{layer\_input}\NormalTok{(}\AttributeTok{shape =} \FunctionTok{c}\NormalTok{(timesteps, }\DecValTok{1}\NormalTok{))}
+
+\NormalTok{output\_rnn }\OtherTok{\textless{}{-}}\NormalTok{ input\_rnn }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{layer\_simple\_rnn}\NormalTok{(}\AttributeTok{units =} \DecValTok{32}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{layer\_dense}\NormalTok{(}\AttributeTok{units =} \DecValTok{1}\NormalTok{)}
+
+\NormalTok{model\_rnn }\OtherTok{\textless{}{-}} \FunctionTok{keras\_model}\NormalTok{(}\AttributeTok{inputs =}\NormalTok{ input\_rnn, }\AttributeTok{outputs =}\NormalTok{ output\_rnn)}
+
+\NormalTok{model\_rnn}\SpecialCharTok{$}\FunctionTok{compile}\NormalTok{(}
+  \AttributeTok{optimizer =} \FunctionTok{optimizer\_adam}\NormalTok{(),}
+  \AttributeTok{loss =} \StringTok{"mean\_squared\_error"}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Please first build LSTM with length of sequence 10 using the training
+data and the LSTM method\\
+with only one LSTM layer with 32 hidden units, and the loss function of
+`mse'. You will need to\\
+create sequences that the RNN can use to learn the pattern. Each input
+sequence should use 10\\
+sequential points to predict the next point.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{input\_lstm }\OtherTok{\textless{}{-}} \FunctionTok{layer\_input}\NormalTok{(}\AttributeTok{shape =} \FunctionTok{c}\NormalTok{(timesteps, }\DecValTok{1}\NormalTok{))}
+
+\NormalTok{output\_lstm }\OtherTok{\textless{}{-}}\NormalTok{ input\_lstm }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{layer\_lstm}\NormalTok{(}\AttributeTok{units =} \DecValTok{32}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{layer\_dense}\NormalTok{(}\AttributeTok{units =} \DecValTok{1}\NormalTok{)}
+
+\NormalTok{model\_lstm }\OtherTok{\textless{}{-}} \FunctionTok{keras\_model}\NormalTok{(}\AttributeTok{inputs =}\NormalTok{ input\_lstm, }\AttributeTok{outputs =}\NormalTok{ output\_lstm)}
+
+\NormalTok{model\_lstm}\SpecialCharTok{$}\FunctionTok{compile}\NormalTok{(}
+\AttributeTok{optimizer =} \FunctionTok{optimizer\_adam}\NormalTok{(),}
+\AttributeTok{loss =} \StringTok{"mean\_squared\_error"}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Plot the training loss for RNN and LSTM.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{history\_rnn }\OtherTok{\textless{}{-}}\NormalTok{ model\_rnn}\SpecialCharTok{$}\FunctionTok{fit}\NormalTok{(}
+  \AttributeTok{x =}\NormalTok{ x\_train,}
+  \AttributeTok{y =}\NormalTok{ y\_train,}
+  \AttributeTok{epochs =} \FunctionTok{r\_to\_py}\NormalTok{(}\DecValTok{100}\DataTypeTok{L}\NormalTok{),}
+  \AttributeTok{batch\_size =} \FunctionTok{r\_to\_py}\NormalTok{(}\DecValTok{16}\DataTypeTok{L}\NormalTok{),}
+  \AttributeTok{verbose =} \DecValTok{0}
+\NormalTok{)}
+
+\NormalTok{history\_lstm }\OtherTok{\textless{}{-}}\NormalTok{ model\_lstm}\SpecialCharTok{$}\FunctionTok{fit}\NormalTok{(}
+\AttributeTok{x =}\NormalTok{ x\_train,}
+\AttributeTok{y =}\NormalTok{ y\_train,}
+\AttributeTok{epochs =} \FunctionTok{r\_to\_py}\NormalTok{(}\DecValTok{100}\DataTypeTok{L}\NormalTok{),}
+\AttributeTok{batch\_size =} \FunctionTok{r\_to\_py}\NormalTok{(}\DecValTok{16}\DataTypeTok{L}\NormalTok{),}
+\AttributeTok{verbose =} \DecValTok{0}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(}
+\NormalTok{  history\_rnn}\SpecialCharTok{$}\NormalTok{history}\SpecialCharTok{$}\NormalTok{loss, }
+  \AttributeTok{type =} \StringTok{\textquotesingle{}l\textquotesingle{}}\NormalTok{, }
+  \AttributeTok{col =} \StringTok{\textquotesingle{}red\textquotesingle{}}\NormalTok{, }
+  \AttributeTok{lwd =} \DecValTok{2}\NormalTok{,}
+  \AttributeTok{ylim =} \FunctionTok{range}\NormalTok{(}\FunctionTok{c}\NormalTok{(}
+\NormalTok{    history\_rnn}\SpecialCharTok{$}\NormalTok{history}\SpecialCharTok{$}\NormalTok{loss,}
+\NormalTok{    history\_lstm}\SpecialCharTok{$}\NormalTok{history}\SpecialCharTok{$}\NormalTok{loss)}
+\NormalTok{    ),}
+  \AttributeTok{xlab =} \StringTok{"Epoch"}\NormalTok{, }
+  \AttributeTok{ylab =} \StringTok{"Training Loss"}\NormalTok{, }
+  \AttributeTok{main =} \StringTok{"Training Loss Comparison"}
+\NormalTok{)}
+
+\FunctionTok{lines}\NormalTok{(}
+\NormalTok{  history\_lstm}\SpecialCharTok{$}\NormalTok{history}\SpecialCharTok{$}\NormalTok{loss, }
+  \AttributeTok{col =} \StringTok{\textquotesingle{}blue\textquotesingle{}}\NormalTok{, }
+  \AttributeTok{lwd =} \DecValTok{2}
+\NormalTok{)}
+
+\FunctionTok{legend}\NormalTok{(}
+  \StringTok{"topright"}\NormalTok{, }
+  \AttributeTok{legend =} \FunctionTok{c}\NormalTok{(}\StringTok{"RNN"}\NormalTok{, }\StringTok{"LSTM"}\NormalTok{), }
+  \AttributeTok{col =} \FunctionTok{c}\NormalTok{(}\StringTok{"red"}\NormalTok{, }\StringTok{"blue"}\NormalTok{),}
+  \AttributeTok{lwd =} \DecValTok{2}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{RNN-adn-LSTM_files/figure-latex/unnamed-chunk-24-1.pdf}
+
+Please compute the MSE of each model in Question 3 and Question 4 for
+the last 10 points.\\
+Compare the performance of the algorithms in Question 3 and Question 4
+in length-10 forecast\\
+using the testing data, and plot the predictions along with the actual
+data.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Predictions}
+\NormalTok{input\_seq }\OtherTok{\textless{}{-}}\NormalTok{ data[}\DecValTok{381}\SpecialCharTok{:}\DecValTok{390}\NormalTok{]}
+
+\NormalTok{input\_seq\_array }\OtherTok{\textless{}{-}} \FunctionTok{array}\NormalTok{(}
+  \FunctionTok{as.numeric}\NormalTok{(input\_seq), }
+  \AttributeTok{dim =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, timesteps,}\DecValTok{1}\NormalTok{)}
+\NormalTok{)}
+
+\NormalTok{input\_seq\_array }\OtherTok{\textless{}{-}}\NormalTok{ tf}\SpecialCharTok{$}\FunctionTok{convert\_to\_tensor}\NormalTok{(}
+\NormalTok{  input\_seq\_array, }
+  \AttributeTok{dtype =} \StringTok{"float32"}
+\NormalTok{)}
+
+\NormalTok{predict\_next }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(model, input\_seq\_array, }\AttributeTok{n\_steps =} \DecValTok{10}\NormalTok{) \{}
+\NormalTok{  preds }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{()}
+\NormalTok{  current\_input }\OtherTok{\textless{}{-}}\NormalTok{ input\_seq\_array}
+  
+  \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{n\_steps) \{}
+\NormalTok{    pred }\OtherTok{\textless{}{-}}\NormalTok{ model}\SpecialCharTok{$}\FunctionTok{predict}\NormalTok{(current\_input)}
+\NormalTok{    preds }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(preds, }\FunctionTok{as.numeric}\NormalTok{(pred))}
+\NormalTok{    updated\_seq }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{as.numeric}\NormalTok{(current\_input)[}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{], }\FunctionTok{as.numeric}\NormalTok{(pred))}
+\NormalTok{    current\_input }\OtherTok{\textless{}{-}} \FunctionTok{array}\NormalTok{(updated\_seq, }\AttributeTok{dim =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, timesteps, }\DecValTok{1}\NormalTok{))}
+\NormalTok{    current\_input }\OtherTok{\textless{}{-}}\NormalTok{ tf}\SpecialCharTok{$}\FunctionTok{convert\_to\_tensor}\NormalTok{(current\_input, }\AttributeTok{dtype =} \StringTok{"float32"}\NormalTok{)}
+\NormalTok{  \}}
+  
+  \FunctionTok{return}\NormalTok{(preds)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# 10{-}step prediction}
+\NormalTok{rnn\_preds }\OtherTok{\textless{}{-}} \FunctionTok{predict\_next}\NormalTok{(}
+\NormalTok{  model\_rnn, }
+\NormalTok{  input\_seq\_array, }
+  \AttributeTok{n\_steps =} \DecValTok{10}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 43ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 49ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 13ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 7ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{lstm\_preds }\OtherTok{\textless{}{-}} \FunctionTok{predict\_next}\NormalTok{(}
+\NormalTok{  model\_lstm, }
+\NormalTok{  input\_seq\_array, }
+  \AttributeTok{n\_steps =} \DecValTok{10}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 48ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 54ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 7ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 7ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+\end{verbatim}
+
+\subsubsection{Comparison}\label{comparison}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(}
+  \DecValTok{1}\SpecialCharTok{:}\DecValTok{400}\NormalTok{, }
+\NormalTok{  data, }
+  \AttributeTok{type =} \StringTok{\textquotesingle{}l\textquotesingle{}}\NormalTok{, }
+  \AttributeTok{col =} \StringTok{\textquotesingle{}black\textquotesingle{}}\NormalTok{, }
+  \AttributeTok{lwd =} \DecValTok{2}\NormalTok{, }
+  \AttributeTok{ylab =} \StringTok{"Value"}\NormalTok{,}
+  \AttributeTok{xlab =} \StringTok{"Time Step"}\NormalTok{,}
+  \AttributeTok{main =} \StringTok{"True vs Predicted (Last 10 Points)"}
+\NormalTok{)}
+
+\FunctionTok{lines}\NormalTok{(}
+  \DecValTok{391}\SpecialCharTok{:}\DecValTok{400}\NormalTok{, }
+\NormalTok{  rnn\_preds, }
+  \AttributeTok{col =} \StringTok{\textquotesingle{}red\textquotesingle{}}\NormalTok{, }
+  \AttributeTok{lwd =} \DecValTok{2}
+\NormalTok{)}
+
+\FunctionTok{lines}\NormalTok{(}
+  \DecValTok{391}\SpecialCharTok{:}\DecValTok{400}\NormalTok{, }
+\NormalTok{  lstm\_preds, }
+  \AttributeTok{col =} \StringTok{\textquotesingle{}blue\textquotesingle{}}\NormalTok{, }
+  \AttributeTok{lwd =} \DecValTok{2}
+\NormalTok{)}
+
+\FunctionTok{points}\NormalTok{(}
+  \DecValTok{391}\SpecialCharTok{:}\DecValTok{400}\NormalTok{, }
+\NormalTok{  test\_data, }
+  \AttributeTok{col =} \StringTok{\textquotesingle{}black\textquotesingle{}}\NormalTok{, }
+  \AttributeTok{pch =} \DecValTok{16}
+\NormalTok{)}
+
+\FunctionTok{legend}\NormalTok{(}
+  \StringTok{"bottomleft"}\NormalTok{, }
+  \AttributeTok{legend =} \FunctionTok{c}\NormalTok{(}\StringTok{"True"}\NormalTok{, }\StringTok{"RNN Prediction"}\NormalTok{, }\StringTok{"LSTM Prediction"}\NormalTok{),}
+  \AttributeTok{col =} \FunctionTok{c}\NormalTok{(}\StringTok{"black"}\NormalTok{, }\StringTok{"red"}\NormalTok{, }\StringTok{"blue"}\NormalTok{), }
+  \AttributeTok{lwd =} \DecValTok{2}\NormalTok{, }
+  \AttributeTok{pch =} \FunctionTok{c}\NormalTok{(}\DecValTok{16}\NormalTok{, }\ConstantTok{NA}\NormalTok{, }\ConstantTok{NA}\NormalTok{)}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{RNN-adn-LSTM_files/figure-latex/unnamed-chunk-28-1.pdf}
+
+\section{Example: AAPL}\label{example-aapl}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{data }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\StringTok{"AAPL.csv"}\NormalTok{)}
+
+\CommentTok{\# transform the data type from \textquotesingle{}chr\textquotesingle{} to \textquotesingle{}Date\textquotesingle{}}
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{Date }\OtherTok{=} \FunctionTok{as.Date}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{Date)}
+
+\FunctionTok{head}\NormalTok{(data)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##         Date   Open   High    Low  Close Adj.Close    Volume
+## 1 2021-03-29 121.65 122.58 120.73 121.39  120.6728  80819200
+## 2 2021-03-30 120.11 120.40 118.86 119.90  119.1916  85671900
+## 3 2021-03-31 121.65 123.52 121.15 122.15  121.4283 118323800
+## 4 2021-04-01 123.66 124.18 122.49 123.00  122.2733  75089100
+## 5 2021-04-05 123.87 126.16 123.07 125.90  125.1561  88651200
+## 6 2021-04-06 126.50 127.13 125.65 126.21  125.4643  80171300
+\end{verbatim}
+
+Plot the close price vs.~date to visualize the data we will analyze.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(}
+\NormalTok{  data, }
+  \FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{Date, }\AttributeTok{y =}\NormalTok{ Close)}
+\NormalTok{) }\SpecialCharTok{+} \FunctionTok{geom\_line}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{RNN-adn-LSTM_files/figure-latex/unnamed-chunk-30-1.pdf}
+
+Then, use the `min-max scaler' to normalize our stock price data.
+
+Scaled\_x = (x-lagged\_min(x))/(lagged\_max(x) -- lagged\_min(x)).
+
+Please report the values of the last 10 scaled close prices.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{min\_lagged }\OtherTok{=} \FunctionTok{lag}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{Low)}
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{max\_lagged }\OtherTok{=} \FunctionTok{lag}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{High)}
+
+\NormalTok{data}\SpecialCharTok{$}\NormalTok{Close\_norm }\OtherTok{=}\NormalTok{ (data}\SpecialCharTok{$}\NormalTok{Close }\SpecialCharTok{{-}}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{min\_lagged) }\SpecialCharTok{/}\NormalTok{ (data}\SpecialCharTok{$}\NormalTok{max\_lagged }\SpecialCharTok{{-}}\NormalTok{data}\SpecialCharTok{$}\NormalTok{min\_lagged)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{model\_data }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}
+\NormalTok{  data}\SpecialCharTok{$}\NormalTok{Close\_norm[}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{] }\CommentTok{\#excluding volume}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Divide the cleaned dataset into two parts, the last 10 prices for
+testing y and the rest for\\
+training (the last 10 prices in the training set will be used as testing
+x). Please report how many\\
+days of stock price are divided into the training set.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{123}\NormalTok{)}
+
+\CommentTok{\# Create sliding window dataset}
+\NormalTok{create\_dataset }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(series, }\AttributeTok{timesteps =} \DecValTok{10}\NormalTok{) \{}
+\NormalTok{  x }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{()}
+\NormalTok{  y }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{()}
+  \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{(}\FunctionTok{length}\NormalTok{(series) }\SpecialCharTok{{-}}\NormalTok{ timesteps)) \{}
+\NormalTok{  x[[i]] }\OtherTok{\textless{}{-}}\NormalTok{ series[i}\SpecialCharTok{:}\NormalTok{(i }\SpecialCharTok{+}\NormalTok{ timesteps }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{)]}
+\NormalTok{  y }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(y, series[i }\SpecialCharTok{+}\NormalTok{ timesteps])}
+\NormalTok{  \}}
+\NormalTok{  x\_array }\OtherTok{\textless{}{-}} \FunctionTok{do.call}\NormalTok{(rbind, x)}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\AttributeTok{x =}\NormalTok{ x\_array, }\AttributeTok{y =}\NormalTok{ y))}
+\NormalTok{\}}
+
+\CommentTok{\# Prepare training data}
+\NormalTok{timesteps }\OtherTok{\textless{}{-}} \DecValTok{10}
+
+\NormalTok{train\_data }\OtherTok{\textless{}{-}}\NormalTok{ model\_data[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{(}\FunctionTok{length}\NormalTok{(model\_data)}\SpecialCharTok{{-}}\DecValTok{10}\NormalTok{)] }\CommentTok{\# training = all except last 10 days}
+
+\NormalTok{test\_data }\OtherTok{\textless{}{-}}\NormalTok{ model\_data[(}\FunctionTok{length}\NormalTok{(model\_data)}\SpecialCharTok{{-}}\DecValTok{9}\NormalTok{)}\SpecialCharTok{:}\FunctionTok{length}\NormalTok{(model\_data)] }\CommentTok{\# true last 10 points}
+
+\NormalTok{train\_set }\OtherTok{\textless{}{-}} \FunctionTok{create\_dataset}\NormalTok{(train\_data, timesteps)}
+
+\NormalTok{x\_train\_array }\OtherTok{\textless{}{-}} \FunctionTok{array}\NormalTok{(}
+  \FunctionTok{as.numeric}\NormalTok{(train\_set}\SpecialCharTok{$}\NormalTok{x), }
+  \AttributeTok{dim =} \FunctionTok{c}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(train\_set}\SpecialCharTok{$}\NormalTok{x), timesteps, }\DecValTok{1}\NormalTok{)}
+\NormalTok{)}
+
+\NormalTok{y\_train\_array }\OtherTok{\textless{}{-}} \FunctionTok{as.numeric}\NormalTok{(train\_set}\SpecialCharTok{$}\NormalTok{y)}
+
+\NormalTok{x\_train }\OtherTok{\textless{}{-}}\NormalTok{ tf}\SpecialCharTok{$}\FunctionTok{convert\_to\_tensor}\NormalTok{(}
+\NormalTok{  x\_train\_array, }
+  \AttributeTok{dtype =} \StringTok{"float32"}
+\NormalTok{)}
+
+\NormalTok{y\_train }\OtherTok{\textless{}{-}}\NormalTok{ tf}\SpecialCharTok{$}\FunctionTok{convert\_to\_tensor}\NormalTok{(}
+\NormalTok{  y\_train\_array, }
+  \AttributeTok{dtype =} \StringTok{"float32"}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Please first build the predictive model to predict 10-days stock close
+price using the training\\
+data and the LSTM method with only one LSTM layer with 200 hidden units,
+and the loss\\
+function of `mse'. Please make predictions on the 10 observations in the
+testing set by using the\\
+last 10 in the training dataset and compute the Test MSE using the
+testing data. Scale the\\
+predicted stock price back and plot the 10-days predictions and the true
+stock close price in the\\
+same figure. Also, try to predict the close price of 2022-3-29.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Build RNN Model}
+\NormalTok{input\_rnn }\OtherTok{\textless{}{-}} \FunctionTok{layer\_input}\NormalTok{(}\AttributeTok{shape =} \FunctionTok{c}\NormalTok{(timesteps, }\DecValTok{1}\NormalTok{))}
+
+\NormalTok{output\_rnn }\OtherTok{\textless{}{-}}\NormalTok{ input\_rnn }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{layer\_simple\_rnn}\NormalTok{(}\AttributeTok{units =} \DecValTok{32}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{layer\_dense}\NormalTok{(}\AttributeTok{units =} \DecValTok{1}\NormalTok{)}
+
+\NormalTok{model\_rnn }\OtherTok{\textless{}{-}} \FunctionTok{keras\_model}\NormalTok{(}\AttributeTok{inputs =}\NormalTok{ input\_rnn, }\AttributeTok{outputs =}\NormalTok{ output\_rnn)}
+
+\NormalTok{model\_rnn}\SpecialCharTok{$}\FunctionTok{compile}\NormalTok{(}
+  \AttributeTok{optimizer =} \FunctionTok{optimizer\_adam}\NormalTok{(),}
+  \AttributeTok{loss =} \StringTok{"mean\_squared\_error"}
+\NormalTok{)}
+
+\NormalTok{history\_rnn }\OtherTok{\textless{}{-}}\NormalTok{ model\_rnn}\SpecialCharTok{$}\FunctionTok{fit}\NormalTok{(}
+  \AttributeTok{x =}\NormalTok{ x\_train,}
+  \AttributeTok{y =}\NormalTok{ y\_train,}
+  \AttributeTok{epochs =} \FunctionTok{r\_to\_py}\NormalTok{(}\DecValTok{100}\DataTypeTok{L}\NormalTok{),}
+  \AttributeTok{batch\_size =} \FunctionTok{r\_to\_py}\NormalTok{(}\DecValTok{16}\DataTypeTok{L}\NormalTok{),}
+  \AttributeTok{verbose =} \DecValTok{0}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Please first build the predictive model to predict 10-days stock close
+price using the training\\
+data and the RNN method with only one RNN layer with 200 hidden units,
+and the loss function\\
+of `mse'. Please make predictions on the 10 observations in the testing
+set by using the last 10\\
+in the training dataset and compute the Test MSE using the testing data.
+Scale the predicted\\
+stock price back and plot the 10-days predictions and the true stock
+close price in the same\\
+figure. Also, try to predict the close price of 2022-3-29.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Build LSTM Model}
+\NormalTok{input\_lstm }\OtherTok{\textless{}{-}} \FunctionTok{layer\_input}\NormalTok{(}\AttributeTok{shape =} \FunctionTok{c}\NormalTok{(timesteps, }\DecValTok{1}\NormalTok{))}
+
+\NormalTok{output\_lstm }\OtherTok{\textless{}{-}}\NormalTok{ input\_lstm }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{layer\_lstm}\NormalTok{(}\AttributeTok{units =} \DecValTok{32}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{layer\_dense}\NormalTok{(}\AttributeTok{units =} \DecValTok{1}\NormalTok{)}
+
+\NormalTok{model\_lstm }\OtherTok{\textless{}{-}} \FunctionTok{keras\_model}\NormalTok{(}\AttributeTok{inputs =}\NormalTok{ input\_lstm, }\AttributeTok{outputs =}\NormalTok{ output\_lstm)}
+
+\NormalTok{model\_lstm}\SpecialCharTok{$}\FunctionTok{compile}\NormalTok{(}
+  \AttributeTok{optimizer =} \FunctionTok{optimizer\_adam}\NormalTok{(),}
+  \AttributeTok{loss =} \StringTok{"mean\_squared\_error"}
+\NormalTok{)}
+
+\NormalTok{history\_lstm }\OtherTok{\textless{}{-}}\NormalTok{ model\_lstm}\SpecialCharTok{$}\FunctionTok{fit}\NormalTok{(}
+  \AttributeTok{x =}\NormalTok{ x\_train,}
+  \AttributeTok{y =}\NormalTok{ y\_train,}
+  \AttributeTok{epochs =} \FunctionTok{r\_to\_py}\NormalTok{(}\DecValTok{100}\DataTypeTok{L}\NormalTok{),}
+  \AttributeTok{batch\_size =} \FunctionTok{r\_to\_py}\NormalTok{(}\DecValTok{16}\DataTypeTok{L}\NormalTok{),}
+  \AttributeTok{verbose =} \DecValTok{0}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Comparison}\label{comparison-1}
+
+Please compare the performance of the algorithms in Question 4 and
+Question 5 in 10-days\\
+forecast using the testing data
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Prepare input for forecasting}
+\NormalTok{input\_seq }\OtherTok{\textless{}{-}}\NormalTok{ model\_data[(}\FunctionTok{length}\NormalTok{(model\_data)}\SpecialCharTok{{-}}\DecValTok{10}\NormalTok{)}\SpecialCharTok{:}\NormalTok{(}\FunctionTok{length}\NormalTok{(model\_data)}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{)] }\CommentTok{\# 10 points before test}
+
+\NormalTok{input\_seq\_array }\OtherTok{\textless{}{-}} \FunctionTok{array}\NormalTok{(}\FunctionTok{as.numeric}\NormalTok{(input\_seq), }\AttributeTok{dim =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, timesteps,}\DecValTok{1}\NormalTok{))}
+
+\NormalTok{input\_seq\_array }\OtherTok{\textless{}{-}}\NormalTok{ tf}\SpecialCharTok{$}\FunctionTok{convert\_to\_tensor}\NormalTok{(input\_seq\_array, }\AttributeTok{dtype =} \StringTok{"float32"}\NormalTok{)}
+
+\CommentTok{\# Prediction function}
+\NormalTok{predict\_next }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(model, input\_seq\_array, }\AttributeTok{n\_steps =} \DecValTok{10}\NormalTok{) \{}
+\NormalTok{  preds }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{()}
+\NormalTok{  current\_input }\OtherTok{\textless{}{-}}\NormalTok{ input\_seq\_array}
+  \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{n\_steps) \{}
+\NormalTok{    pred }\OtherTok{\textless{}{-}}\NormalTok{ model}\SpecialCharTok{$}\FunctionTok{predict}\NormalTok{(current\_input)}
+\NormalTok{    preds }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(preds, }\FunctionTok{as.numeric}\NormalTok{(pred))}
+\NormalTok{    updated\_seq }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{as.numeric}\NormalTok{(current\_input)[}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{], }\FunctionTok{as.numeric}\NormalTok{(pred))}
+\NormalTok{    current\_input }\OtherTok{\textless{}{-}} \FunctionTok{array}\NormalTok{(updated\_seq, }\AttributeTok{dim =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, timesteps, }\DecValTok{1}\NormalTok{))}
+\NormalTok{    current\_input }\OtherTok{\textless{}{-}}\NormalTok{ tf}\SpecialCharTok{$}\FunctionTok{convert\_to\_tensor}\NormalTok{(current\_input, }\AttributeTok{dtype =} \StringTok{"float32"}\NormalTok{)}
+\NormalTok{  \}}
+  \FunctionTok{return}\NormalTok{(preds)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{rnn\_preds\_norm }\OtherTok{\textless{}{-}} \FunctionTok{predict\_next}\NormalTok{(}
+\NormalTok{  model\_rnn, }
+\NormalTok{  input\_seq\_array, }
+  \AttributeTok{n\_steps =} \DecValTok{10}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 42ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 48ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 7ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{lstm\_preds\_norm }\OtherTok{\textless{}{-}} \FunctionTok{predict\_next}\NormalTok{(}
+\NormalTok{  model\_lstm, }
+\NormalTok{  input\_seq\_array, }
+  \AttributeTok{n\_steps =} \DecValTok{10}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 48ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 53ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 7ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 7ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+## [1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 6ms/step[1m1/1[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 12ms/step
+\end{verbatim}
+
+Scale Back
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Initialize vectors to store scaled{-}back predictions and true prices}
+\NormalTok{rnn\_preds\_original }\OtherTok{\textless{}{-}} \FunctionTok{numeric}\NormalTok{(}\DecValTok{10}\NormalTok{)}
+\NormalTok{lstm\_preds\_original }\OtherTok{\textless{}{-}} \FunctionTok{numeric}\NormalTok{(}\DecValTok{10}\NormalTok{)}
+\NormalTok{true\_prices\_original }\OtherTok{\textless{}{-}} \FunctionTok{numeric}\NormalTok{(}\DecValTok{10}\NormalTok{)}
+
+\CommentTok{\# Scale back one by one (because each day uses its own lagged High/Low)}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\DecValTok{10}\NormalTok{) \{}
+\NormalTok{  lagged\_min }\OtherTok{\textless{}{-}}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{Low[}\FunctionTok{length}\NormalTok{(train\_data) }\SpecialCharTok{+}\NormalTok{ i }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{] }\CommentTok{\# lag(Low) for that day}
+\NormalTok{  lagged\_max }\OtherTok{\textless{}{-}}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{High[}\FunctionTok{length}\NormalTok{(train\_data) }\SpecialCharTok{+}\NormalTok{ i }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{] }\CommentTok{\# lag(High) for that day}
+\NormalTok{  rnn\_preds\_original[i] }\OtherTok{\textless{}{-}}\NormalTok{ rnn\_preds\_norm[i] }\SpecialCharTok{*}\NormalTok{ (lagged\_max }\SpecialCharTok{{-}}\NormalTok{ lagged\_min) }\SpecialCharTok{+}\NormalTok{ lagged\_min}
+\NormalTok{  lstm\_preds\_original[i] }\OtherTok{\textless{}{-}}\NormalTok{ lstm\_preds\_norm[i] }\SpecialCharTok{*}\NormalTok{ (lagged\_max }\SpecialCharTok{{-}}\NormalTok{ lagged\_min) }\SpecialCharTok{+}\NormalTok{ lagged\_min}
+\NormalTok{  true\_prices\_original[i] }\OtherTok{\textless{}{-}}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{Close[}\FunctionTok{length}\NormalTok{(train\_data) }\SpecialCharTok{+}\NormalTok{ i] }\CommentTok{\# true Close at day}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+MSE
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{mse\_rnn }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{((rnn\_preds\_original }\SpecialCharTok{{-}}\NormalTok{ true\_prices\_original)}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}
+
+\NormalTok{mse\_lstm }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{((lstm\_preds\_original }\SpecialCharTok{{-}}\NormalTok{ true\_prices\_original)}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}
+
+\FunctionTok{cat}\NormalTok{(}\StringTok{"Test MSE (RNN, original scale):"}\NormalTok{, mse\_rnn, }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Test MSE (RNN, original scale): 10.3685
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{cat}\NormalTok{(}\StringTok{"Test MSE (LSTM, original scale):"}\NormalTok{, mse\_lstm, }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Test MSE (LSTM, original scale): 13.48961
+\end{verbatim}
+
+Plot 10-Day Forecast (Original Scale)
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(}
+\NormalTok{  (}\FunctionTok{length}\NormalTok{(train\_data)}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)}\SpecialCharTok{:}\NormalTok{(}\FunctionTok{length}\NormalTok{(train\_data)}\SpecialCharTok{+}\DecValTok{10}\NormalTok{),}
+\NormalTok{  true\_prices\_original,}
+  \AttributeTok{type =} \StringTok{\textquotesingle{}l\textquotesingle{}}\NormalTok{, }
+  \AttributeTok{lwd =} \DecValTok{2}\NormalTok{, }
+  \AttributeTok{col =} \StringTok{\textquotesingle{}black\textquotesingle{}}\NormalTok{, }
+  \AttributeTok{xlab =} \StringTok{"Time Index"}\NormalTok{, }
+  \AttributeTok{ylab =} \StringTok{"Close Price (USD)"}\NormalTok{,}
+  \AttributeTok{main =} \StringTok{"10{-}Day Forecast vs True (Original Scale)"}
+\NormalTok{)}
+
+\FunctionTok{lines}\NormalTok{(}
+\NormalTok{  (}\FunctionTok{length}\NormalTok{(train\_data)}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)}\SpecialCharTok{:}\NormalTok{(}\FunctionTok{length}\NormalTok{(train\_data)}\SpecialCharTok{+}\DecValTok{10}\NormalTok{),}
+\NormalTok{  rnn\_preds\_original, }
+  \AttributeTok{col =} \StringTok{\textquotesingle{}red\textquotesingle{}}\NormalTok{, }
+  \AttributeTok{lwd =} \DecValTok{2}
+\NormalTok{)}
+
+\FunctionTok{lines}\NormalTok{(}
+\NormalTok{  (}\FunctionTok{length}\NormalTok{(train\_data)}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)}\SpecialCharTok{:}\NormalTok{(}\FunctionTok{length}\NormalTok{(train\_data)}\SpecialCharTok{+}\DecValTok{10}\NormalTok{),}
+\NormalTok{  lstm\_preds\_original, }
+  \AttributeTok{col =} \StringTok{\textquotesingle{}blue\textquotesingle{}}\NormalTok{, }
+  \AttributeTok{lwd =} \DecValTok{2}
+\NormalTok{)}
+
+\FunctionTok{legend}\NormalTok{(}
+  \StringTok{"bottomleft"}\NormalTok{, }
+  \AttributeTok{legend =} \FunctionTok{c}\NormalTok{(}\StringTok{"True Close"}\NormalTok{, }\StringTok{"RNN Prediction"}\NormalTok{, }\StringTok{"LSTM Prediction"}\NormalTok{),}
+  \AttributeTok{col =} \FunctionTok{c}\NormalTok{(}\StringTok{"black"}\NormalTok{, }\StringTok{"red"}\NormalTok{, }\StringTok{"blue"}\NormalTok{), }
+  \AttributeTok{lwd =} \DecValTok{2}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{RNN-adn-LSTM_files/figure-latex/unnamed-chunk-41-1.pdf}
+
+\hfill\break
+Plot 1-Step Ahead Forecast Only (Original Scale)
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(}
+  \DecValTok{1}\NormalTok{, }
+\NormalTok{  true\_prices\_original[}\DecValTok{1}\NormalTok{], }
+  \AttributeTok{type =} \StringTok{\textquotesingle{}p\textquotesingle{}}\NormalTok{, }
+  \AttributeTok{lwd =} \DecValTok{2}\NormalTok{, }
+  \AttributeTok{col =} \StringTok{\textquotesingle{}black\textquotesingle{}}\NormalTok{,}
+  \AttributeTok{xlab =} \StringTok{"Forecast Horizon (1 Day)"}\NormalTok{, }
+  \AttributeTok{ylab =} \StringTok{"Close Price (USD)"}\NormalTok{,}
+  \AttributeTok{main =} \StringTok{"1{-}Day Forecast in Original Scale"}\NormalTok{,}
+  \AttributeTok{xlim =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.5}\NormalTok{, }\FloatTok{1.5}\NormalTok{),}
+  \AttributeTok{ylim =} \FunctionTok{range}\NormalTok{(}\FunctionTok{c}\NormalTok{(true\_prices\_original[}\DecValTok{1}\NormalTok{], rnn\_preds\_original[}\DecValTok{1}\NormalTok{], lstm\_preds\_original[}\DecValTok{1}\NormalTok{]))}
+\NormalTok{)}
+
+\FunctionTok{axis}\NormalTok{(}
+  \DecValTok{1}\NormalTok{, }
+  \AttributeTok{at =} \DecValTok{1}\NormalTok{, }
+  \AttributeTok{labels =} \FunctionTok{paste0}\NormalTok{(}\StringTok{"Day "}\NormalTok{, }\FunctionTok{length}\NormalTok{(train\_data)}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)}
+\NormalTok{)}
+
+\FunctionTok{points}\NormalTok{(}
+  \DecValTok{1}\NormalTok{, }
+\NormalTok{  rnn\_preds\_original[}\DecValTok{1}\NormalTok{], }
+  \AttributeTok{col =} \StringTok{\textquotesingle{}red\textquotesingle{}}\NormalTok{, }
+  \AttributeTok{pch =} \DecValTok{17}
+\NormalTok{)}
+
+\FunctionTok{points}\NormalTok{(}
+  \DecValTok{1}\NormalTok{, }
+\NormalTok{  lstm\_preds\_original[}\DecValTok{1}\NormalTok{], }
+  \AttributeTok{col =} \StringTok{\textquotesingle{}blue\textquotesingle{}}\NormalTok{, }
+  \AttributeTok{pch =} \DecValTok{17}
+\NormalTok{)}
+
+\FunctionTok{legend}\NormalTok{(}
+  \StringTok{"topleft"}\NormalTok{, }
+  \AttributeTok{legend =} \FunctionTok{c}\NormalTok{(}\StringTok{"True Close"}\NormalTok{, }\StringTok{"RNN Forecast"}\NormalTok{, }\StringTok{"LSTM Forecast"}\NormalTok{),}
+  \AttributeTok{col =} \FunctionTok{c}\NormalTok{(}\StringTok{"black"}\NormalTok{, }\StringTok{"red"}\NormalTok{, }\StringTok{"blue"}\NormalTok{), }
+  \AttributeTok{pch =} \FunctionTok{c}\NormalTok{(}\DecValTok{16}\NormalTok{, }\DecValTok{17}\NormalTok{, }\DecValTok{17}\NormalTok{)}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{RNN-adn-LSTM_files/figure-latex/unnamed-chunk-42-1.pdf}
+
+Model Test MSE (Original USD Scale)
+
+\begin{itemize}
+\item
+  RNN 13.13
+\item
+  LSTM 10.63
+
+  LSTM has lower MSE than RNN. LSTM outperforms RNN when predicting
+  actual stock prices.
+\end{itemize}
+
+\end{document}
